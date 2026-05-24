@@ -31,6 +31,4 @@
 - cnbluefire/ModernContextMenuManager: https://github.com/cnbluefire/ModernContextMenuManager (MIT)
 
 来源与许可说明
-- 因为引入了 GPLv3 代码，整个仓库作为组合作品按 GPLv3 发布；分发二进制时，需一并提供或指向对应的源代码（参见 `LICENSE`）。
-- 在保留各自原始版权与许可声明的前提下，MIT 许可的文件继续在 MIT 下使用；但当它们与 GPLv3 代码合并成一个作品时，合并后的分发受 GPLv3 约束。
-- 如需对许可细节做进一步法律确认，请咨询法律顾问。
+- 本仓库包含 GPLv3（PLFJY）与 MIT（cnbluefire）代码；因此整体以 GPLv3 发布，并保留 MIT 文件的原始版权与许可声明。
