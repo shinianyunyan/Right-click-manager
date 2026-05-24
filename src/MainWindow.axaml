@@ -1,0 +1,187 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:models="using:RightClickManager.Models"
+		xmlns:vm="using:RightClickManager.ViewModels"
+		xmlns:ui="using:FluentAvalonia.UI.Controls"
+        x:Class="RightClickManager.MainWindow"
+		x:DataType="vm:MainWindowViewModel"
+		TransparencyLevelHint="AcrylicBlur"
+        Background="{DynamicResource MainWindowBackgroundBrush}"
+		Width="600" Height="600"
+		MinWidth="300" MinHeight="100"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        Title="右键菜单管理器"
+        Icon="avares://RightClickManager/icon.ico"
+		ExtendClientAreaToDecorationsHint="True">
+	<Grid x:Name="LayoutRoot" IsEnabled="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}"
+		  RowDefinitions="40, Auto, *">
+		<Grid.Resources>
+			<ResourceDictionary>
+				<ResourceDictionary.ThemeDictionaries>
+					<ResourceDictionary x:Key='Light'>
+						<SolidColorBrush x:Key='ProgressRingBorderBackground'>#99FFFFFF</SolidColorBrush>
+					</ResourceDictionary>
+					<ResourceDictionary x:Key='Dark'>
+						<SolidColorBrush x:Key='ProgressRingBorderBackground'>#99000000</SolidColorBrush>
+					</ResourceDictionary>
+				</ResourceDictionary.ThemeDictionaries>
+			</ResourceDictionary>
+		</Grid.Resources>
+		<Border Width="96" Height="96" Grid.RowSpan="3" Background="{DynamicResource ProgressRingBorderBackground}" CornerRadius="12" IsVisible="{Binding SearchCommand.IsRunning}" ZIndex="1">
+			<Border.Styles>
+				<!-- Since ProgressRing internally uses ReflectionBinding, 
+				which is incompatible with AOT, we override the binding values 
+				in the control's internal style with animation values here. -->
+				<Style Selector="ui|ProgressRing:indeterminate /template/ Ellipse#Track">
+					<Style.Animations>
+						<Animation Duration="0:0:0.01" FillMode="Forward">
+							<KeyFrame Cue="100%">
+								<Setter Property="StrokeThickness" Value="6"/>
+							</KeyFrame>
+						</Animation>
+					</Style.Animations>
+				</Style>
+				<Style Selector="ui|ProgressRing:indeterminate /template/ Arc#Fill">
+					<Style.Animations>
+						<Animation Duration="0:0:0.01" FillMode="Forward">
+							<KeyFrame Cue="100%">
+								<Setter Property="StrokeThickness" Value="6"/>
+							</KeyFrame>
+						</Animation>
+					</Style.Animations>
+				</Style>
+			</Border.Styles>
+			<ui:ProgressRing IsIndeterminate="{Binding SearchCommand.IsRunning}" Width="48" Height="48"/>
+		</Border>
+		<StackPanel Orientation="Horizontal" Margin="17,0" VerticalAlignment="Center">
+			<TextBlock FontSize="12" Text="右键菜单管理器" VerticalAlignment="Center" IsHitTestVisible="False" />
+			<Menu Background="Transparent" Margin="8,0,0,0" Padding="0">
+				<MenuItem Header="选项" FontSize="12" Padding="4,2">
+					<MenuItem Header="开机自启" Command="{Binding ToggleAutoStartCommand}">
+						<MenuItem.Icon>
+							<TextBlock Text="✓" IsVisible="{Binding IsAutoStartEnabled}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+						</MenuItem.Icon>
+					</MenuItem>
+				</MenuItem>
+			</Menu>
+		</StackPanel>
+		<Grid Grid.Row="1" ColumnDefinitions="*, Auto" Margin="16,4,16,12">
+			<TextBox x:Name="SearchBox" Text="{Binding SearchingText,Mode=TwoWay}" Watermark="在此输入应用名称或 GUID 以进行搜索" Margin="0,0,8,0" KeyDown="SearchBox_KeyDown" />
+			<Button x:Name="SearchButton" Grid.Column="1" BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+					Command="{Binding SearchCommand}" CommandParameter="{Binding SearchingText}">
+				<Grid MinWidth="64">
+					<TextBlock Text="搜索" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsNotEmptyConverter}}" />
+					<TextBlock Text="刷新" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsEmptyConverter}}" />
+				</Grid>
+			</Button>
+		</Grid>
+		<TabControl Grid.Row="2" Margin="16,0,16,12">
+			<!-- All Apps Tab -->
+			<TabItem Header="已允许菜单">
+				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<ItemsControl ItemsSource="{Binding Apps}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:PackagedAppModel">
+								<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+									<Expander.Header>
+										<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+											<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+												<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+											</Border>
+											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
+												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+											</StackPanel>
+										</Grid>
+									</Expander.Header>
+									<ItemsControl ItemsSource="{Binding ContextMenuItems}" Margin="60,8,12,8">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+												<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+													<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+												</CheckBox>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+								</Expander>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</TabItem>
+
+			<!-- Blocked Tab -->
+			<TabItem Header="已禁用菜单">
+				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<ItemsControl ItemsSource="{Binding BlockedApps}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:PackagedAppModel">
+								<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+									<Expander.Header>
+										<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+											<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+												<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+											</Border>
+											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
+												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+											</StackPanel>
+										</Grid>
+									</Expander.Header>
+									<ItemsControl ItemsSource="{Binding ContextMenuItems}" Margin="60,8,12,8">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+												<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+													<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+												</CheckBox>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+								</Expander>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</TabItem>
+
+			<!-- Review Tab -->
+			<TabItem Header="拦截待审核">
+				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<ItemsControl ItemsSource="{Binding InterceptedApps}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:PackagedAppModel">
+								<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+									<Expander.Header>
+										<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+											<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+												<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+											</Border>
+											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
+												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+											</StackPanel>
+										</Grid>
+									</Expander.Header>
+									<ItemsControl ItemsSource="{Binding ContextMenuItems}" Margin="60,8,12,8">
+										<ItemsControl.ItemTemplate>
+											<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+												<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}" Content="允许">
+													<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+												</CheckBox>
+											</DataTemplate>
+										</ItemsControl.ItemTemplate>
+									</ItemsControl>
+								</Expander>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</TabItem>
+		</TabControl>
+	</Grid>
+</Window>

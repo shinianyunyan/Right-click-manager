@@ -1,0 +1,45 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:vm="using:RightClickManager.ViewModels"
+			 xmlns:helper="using:RightClickManager.Helpers"
+             x:Class="RightClickManager.App"
+             RequestedThemeVariant="Default">
+	<!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+	<Application.Styles>
+		<FluentTheme />
+		<StyleInclude Source="avares://FluentAvalonia.ProgressRing/Styling/Controls/ProgressRing.axaml" />
+	</Application.Styles>
+
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key='Light'>
+					<SolidColorBrush x:Key='MainWindowBackgroundBrush'>#AAFFFFFF</SolidColorBrush>
+					<SolidColorBrush x:Key='AppListIconBackgroundBrush'>#DDDDDD</SolidColorBrush>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key='Dark'>
+					<SolidColorBrush x:Key='MainWindowBackgroundBrush'>#AA000000</SolidColorBrush>
+					<SolidColorBrush x:Key='AppListIconBackgroundBrush'>#222222</SolidColorBrush>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+			<vm:ViewModelLocator x:Key="Locator" />
+			<helper:NotConverter x:Key="NotConverter" />
+			<helper:StringIsEmptyConverter x:Key="StringIsEmptyConverter" />
+			<helper:StringIsNotEmptyConverter x:Key="StringIsNotEmptyConverter" />
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<TrayIcon.Icons>
+		<TrayIcons>
+			<TrayIcon Icon="avares://RightClickManager/icon.ico" ToolTipText="右键菜单管理器" Clicked="TrayIcon_Clicked">
+				<TrayIcon.Menu>
+					<NativeMenu>
+						<NativeMenuItem Header="显示主界面" Click="ShowMainWindow_Click" />
+						<NativeMenuItem Header="完全退出" Click="ExitApp_Click" />
+					</NativeMenu>
+				</TrayIcon.Menu>
+			</TrayIcon>
+		</TrayIcons>
+	</TrayIcon.Icons>
+</Application>

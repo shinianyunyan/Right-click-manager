@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+        <PropertyGroup>
+                <OutputType>WinExe</OutputType>
+                <TargetFramework>net10.0-windows8.0</TargetFramework>
+                <Nullable>enable</Nullable>
+                <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+                <ApplicationManifest>app.manifest</ApplicationManifest>
+                <ApplicationIcon>icon.ico</ApplicationIcon>
+		<AssemblyName>RightClickManager</AssemblyName>
+		<AssemblyTitle>右键菜单管理器</AssemblyTitle>
+		<Product>右键菜单管理器</Product>
+		<Description>右键菜单管理器</Description>
+                <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+                <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+                <Platforms>x86;x64;ARM64</Platforms>
+                <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+                <Version>0.0.6</Version>
+        </PropertyGroup>
+
+        <PropertyGroup>
+                <DynamicCodeSupport>false</DynamicCodeSupport>
+                <PublishAot>true</PublishAot>
+                <OptimizationPreference>Size</OptimizationPreference>
+                <StaticallyLinked>true</StaticallyLinked>
+                <XmlResolverIsNetworkingEnabledByDefault>false</XmlResolverIsNetworkingEnabledByDefault>
+                <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+                <InvariantGlobalization>true</InvariantGlobalization>
+                <StackTraceSupport>false</StackTraceSupport>
+        </PropertyGroup>
+
+        <PropertyGroup>
+                <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        </PropertyGroup>
+
+        <ItemGroup>
+                <PackageReference Include="Avalonia" Version="11.3.12" />
+                <PackageReference Include="Avalonia.Desktop" Version="11.3.12" />
+                <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.12" />
+                <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.12" />
+                <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+                <PackageReference Include="Avalonia.Diagnostics" Version="11.3.12">
+                        <IncludeAssets Condition="'d:\Myitems\RightClickManager\src\RightClickManager.csproj(Configuration)' != 'Debug'">None</IncludeAssets>
+                        <PrivateAssets Condition="'d:\Myitems\RightClickManager\src\RightClickManager.csproj(Configuration)' != 'Debug'">All</PrivateAssets>
+                </PackageReference>
+                <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
+                        <PrivateAssets>all</PrivateAssets>
+                        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+                </PackageReference>
+                <PackageReference Include="FluentAvalonia.ProgressRing" Version="1.69.2" />
+                <PackageReference Include="Tmds.DBus.Protocol" Version="0.93.0" />
+        </ItemGroup>
+
+        <ItemGroup>
+                <AvaloniaResource Include="icon.ico" />
+        </ItemGroup>
+</Project>

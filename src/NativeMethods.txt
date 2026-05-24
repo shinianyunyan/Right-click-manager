@@ -1,0 +1,14 @@
+﻿OpenPackageInfoByFullName
+GetPackageInfo
+ClosePackageInfo
+GetThreadPreferredUILanguages
+SHLoadIndirectString
+SHCreateItemFromParsingName
+SHCreateShellItemArrayFromShellItem
+CoCreateInstance
+
+PACKAGE_INFO
+
+IExplorerCommand
+IShellItem
+IShellItemArray
