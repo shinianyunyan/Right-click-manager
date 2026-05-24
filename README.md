@@ -8,14 +8,6 @@
 >[!WARNING]
 >本项目的相当一部分代码由 AI 辅助生成，并经过持续的人工作业、联调和重构，但它仍然可能存在遗漏、边界情况处理不足或行为与预期不完全一致的问题。 如果你在使用过程中发现 Bug、兼容性问题、异常行为或文档缺失，欢迎积极提交 Issue。最好附上复现步骤、日志、截图和系统版本信息，这会非常有帮助。
 
-项目简介
-- 名称：右键菜单管理器（Right-click manager）
-- 仓库：https://github.com/shinianyunyan/Right-click-manager.git
-
-来源与致谢
-本项目基于并参考了以下两个开源项目的实现：
-- PLFJY/ContextMenuMgr: https://github.com/PLFJY/ContextMenuMgr
-- cnbluefire/ModernContextMenuManager: https://github.com/cnbluefire/ModernContextMenuManager
 
 本仓库在第二个项目的基础上进行了二次开发，并借鉴了第一个项目关于实时监控右键新增并进行拦截审批的实现思路。
 
@@ -31,5 +23,14 @@
 - 日志、截图或异常信息
 
 许可证
-本项目采用 MIT 许可证（详见 LICENSE 文件）。
+本项目整体以 GNU General Public License v3.0 (GPLv3) 发布，因为仓库包含来自 PLFJY/ContextMenuMgr 的 GPLv3 代码。cnbluefire/ModernContextMenuManager 的部分代码遵循 MIT 许可证；这些部分在 `LICENSE` 中保留 MIT 版权与许可文本。有关详细信息和如何获取对应的源代码，请参阅 `LICENSE`。
 
+来源与致谢
+本项目基于并参考了以下两个开源项目的实现：
+- PLFJY/ContextMenuMgr: https://github.com/PLFJY/ContextMenuMgr (GPLv3)
+- cnbluefire/ModernContextMenuManager: https://github.com/cnbluefire/ModernContextMenuManager (MIT)
+
+来源与许可说明
+- 因为引入了 GPLv3 代码，整个仓库作为组合作品按 GPLv3 发布；分发二进制时，需一并提供或指向对应的源代码（参见 `LICENSE`）。
+- 在保留各自原始版权与许可声明的前提下，MIT 许可的文件继续在 MIT 下使用；但当它们与 GPLv3 代码合并成一个作品时，合并后的分发受 GPLv3 约束。
+- 如需对许可细节做进一步法律确认，请咨询法律顾问。
