@@ -12,7 +12,7 @@
 		Width="600" Height="600"
 		MinWidth="300" MinHeight="100"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Title="右键菜单管理器"
+        Title="{DynamicResource LangText_AppTitle}"
         Icon="avares://RightClickManager/icon.ico"
 		ExtendClientAreaToDecorationsHint="True">
 	<Grid x:Name="LayoutRoot" IsEnabled="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}"
@@ -31,8 +31,8 @@
 		</Grid.Resources>
 		<Border Width="96" Height="96" Grid.RowSpan="3" Background="{DynamicResource ProgressRingBorderBackground}" CornerRadius="12" IsVisible="{Binding SearchCommand.IsRunning}" ZIndex="1">
 			<Border.Styles>
-				<!-- Since ProgressRing internally uses ReflectionBinding, 
-				which is incompatible with AOT, we override the binding values 
+				<!-- Since ProgressRing internally uses ReflectionBinding,
+				which is incompatible with AOT, we override the binding values
 				in the control's internal style with animation values here. -->
 				<Style Selector="ui|ProgressRing:indeterminate /template/ Ellipse#Track">
 					<Style.Animations>
@@ -56,31 +56,49 @@
 			<ui:ProgressRing IsIndeterminate="{Binding SearchCommand.IsRunning}" Width="48" Height="48"/>
 		</Border>
 		<StackPanel Orientation="Horizontal" Margin="17,0" VerticalAlignment="Center">
-			<TextBlock FontSize="12" Text="右键菜单管理器" VerticalAlignment="Center" IsHitTestVisible="False" />
+			<TextBlock FontSize="12" Text="{DynamicResource LangText_AppTitle}" VerticalAlignment="Center" IsHitTestVisible="False" />
 			<Menu Background="Transparent" Margin="8,0,0,0" Padding="0">
-				<MenuItem Header="选项" FontSize="12" Padding="4,2">
-					<MenuItem Header="开机自启" Command="{Binding ToggleAutoStartCommand}">
+				<MenuItem Header="{DynamicResource LangText_Settings}" FontSize="12" Padding="4,2">
+					<MenuItem Header="{DynamicResource LangText_AutoStart}" Command="{Binding ToggleAutoStartCommand}">
 						<MenuItem.Icon>
 							<TextBlock Text="✓" IsVisible="{Binding IsAutoStartEnabled}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 						</MenuItem.Icon>
+					</MenuItem>
+					<MenuItem Header="{DynamicResource LangText_Language}">
+						<MenuItem Header="{DynamicResource LangText_FollowSystem}" Command="{Binding SetLanguageCommand}" CommandParameter="system">
+							<MenuItem.Icon>
+								<TextBlock Text="✓" IsVisible="{Binding IsSystemLanguage}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Header="简体中文" Command="{Binding SetLanguageCommand}" CommandParameter="zh-CN">
+							<MenuItem.Icon>
+								<TextBlock Text="✓" IsVisible="{Binding IsChineseLanguage}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Header="English" Command="{Binding SetLanguageCommand}" CommandParameter="en-US">
+							<MenuItem.Icon>
+								<TextBlock Text="✓" IsVisible="{Binding IsEnglishLanguage}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+							</MenuItem.Icon>
+						</MenuItem>
 					</MenuItem>
 				</MenuItem>
 			</Menu>
 		</StackPanel>
 		<Grid Grid.Row="1" ColumnDefinitions="*, Auto" Margin="16,4,16,12">
-			<TextBox x:Name="SearchBox" Text="{Binding SearchingText,Mode=TwoWay}" Watermark="在此输入应用名称或 GUID 以进行搜索" Margin="0,0,8,0" KeyDown="SearchBox_KeyDown" />
+			<TextBox x:Name="SearchBox" Text="{Binding SearchingText,Mode=TwoWay}" Watermark="{DynamicResource LangText_SearchWatermark}" Margin="0,0,8,0" KeyDown="SearchBox_KeyDown" />
 			<Button x:Name="SearchButton" Grid.Column="1" BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
 					Command="{Binding SearchCommand}" CommandParameter="{Binding SearchingText}">
 				<Grid MinWidth="64">
-					<TextBlock Text="搜索" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsNotEmptyConverter}}" />
-					<TextBlock Text="刷新" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsEmptyConverter}}" />
+					<TextBlock Text="{DynamicResource LangText_Search}" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsNotEmptyConverter}}" />
+					<TextBlock Text="{DynamicResource LangText_Refresh}" HorizontalAlignment="Center" IsVisible="{Binding SearchingText,Converter={StaticResource StringIsEmptyConverter}}" />
 				</Grid>
 			</Button>
 		</Grid>
 		<TabControl Grid.Row="2" Margin="16,0,16,12">
-			<!-- All Apps Tab -->
-			<TabItem Header="已允许菜单">
+			<!-- Allowed Tab -->
+			<TabItem Header="{DynamicResource LangText_TabAllowed}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<StackPanel>
 					<ItemsControl ItemsSource="{Binding Apps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">
@@ -92,8 +110,8 @@
 											</Border>
 											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
 											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
-												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+												<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+												<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
 											</StackPanel>
 										</Grid>
 									</Expander.Header>
@@ -110,12 +128,24 @@
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
+					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+					<ItemsControl ItemsSource="{Binding SystemItems}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:SystemShellItem">
+								<CheckBox Margin="16,4,16,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+									<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+								</CheckBox>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
 
-			<!-- Blocked Tab -->
-			<TabItem Header="已禁用菜单">
+			<!-- Disabled Tab -->
+			<TabItem Header="{DynamicResource LangText_TabDisabled}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<StackPanel>
 					<ItemsControl ItemsSource="{Binding BlockedApps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">
@@ -127,8 +157,8 @@
 											</Border>
 											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
 											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
-												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+												<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+												<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
 											</StackPanel>
 										</Grid>
 									</Expander.Header>
@@ -145,12 +175,24 @@
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
+					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+					<ItemsControl ItemsSource="{Binding BlockedSystemItems}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:SystemShellItem">
+								<CheckBox Margin="16,4,16,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+									<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+								</CheckBox>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
 
-			<!-- Review Tab -->
-			<TabItem Header="拦截待审核">
+			<!-- Pending Tab -->
+			<TabItem Header="{DynamicResource LangText_TabPending}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
+					<StackPanel>
 					<ItemsControl ItemsSource="{Binding InterceptedApps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">
@@ -162,15 +204,15 @@
 											</Border>
 											<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
 											<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-												<Button Content="全部启用" Command="{Binding EnableAllCommand}" />
-												<Button Content="全部禁用" Command="{Binding DisableAllCommand}" />
+												<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+												<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
 											</StackPanel>
 										</Grid>
 									</Expander.Header>
 									<ItemsControl ItemsSource="{Binding ContextMenuItems}" Margin="60,8,12,8">
 										<ItemsControl.ItemTemplate>
 											<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
-												<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}" Content="允许">
+												<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}" Content="{DynamicResource LangText_Allow}">
 													<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
 												</CheckBox>
 											</DataTemplate>
@@ -180,6 +222,17 @@
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
+					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+					<ItemsControl ItemsSource="{Binding InterceptedSystemItems}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate x:DataType="models:SystemShellItem">
+								<CheckBox Margin="16,4,16,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+									<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+								</CheckBox>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
 		</TabControl>

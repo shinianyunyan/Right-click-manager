@@ -13,7 +13,7 @@
 
 	<Application.Resources>
 		<ResourceDictionary>
-			<ResourceDictionary.ThemeDictionaries>
+			<ResourceDictionary.MergedDictionaries><ResourceInclude Source="avares://RightClickManager/Lang/zh-CN.axaml" /></ResourceDictionary.MergedDictionaries><ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key='Light'>
 					<SolidColorBrush x:Key='MainWindowBackgroundBrush'>#AAFFFFFF</SolidColorBrush>
 					<SolidColorBrush x:Key='AppListIconBackgroundBrush'>#DDDDDD</SolidColorBrush>
@@ -32,11 +32,11 @@
 
 	<TrayIcon.Icons>
 		<TrayIcons>
-			<TrayIcon Icon="avares://RightClickManager/icon.ico" ToolTipText="右键菜单管理器" Clicked="TrayIcon_Clicked">
+			<TrayIcon Icon="avares://RightClickManager/icon.ico" ToolTipText="{DynamicResource LangText_AppTitle}" Clicked="TrayIcon_Clicked">
 				<TrayIcon.Menu>
 					<NativeMenu>
-						<NativeMenuItem Header="显示主界面" Click="ShowMainWindow_Click" />
-						<NativeMenuItem Header="完全退出" Click="ExitApp_Click" />
+						<NativeMenuItem Header="{DynamicResource LangText_ShowMainWindow}" Click="ShowMainWindow_Click" />
+						<NativeMenuItem Header="{DynamicResource LangText_ExitApp}" Click="ExitApp_Click" />
 					</NativeMenu>
 				</TrayIcon.Menu>
 			</TrayIcon>

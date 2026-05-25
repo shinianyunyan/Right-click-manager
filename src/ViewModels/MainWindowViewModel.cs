@@ -1,4 +1,4 @@
-﻿using RightClickManager.Base;
+using RightClickManager.Base;
 using RightClickManager.Helpers;
 using RightClickManager.Models;
 using System;
@@ -41,6 +41,28 @@ namespace RightClickManager.ViewModels
             private set => SetProperty(ref interceptedApps, value);
         }
 
+        private IReadOnlyList<Models.SystemShellItem>? systemItems;
+        private IReadOnlyList<Models.SystemShellItem>? blockedSystemItems;
+        private IReadOnlyList<Models.SystemShellItem>? interceptedSystemItems;
+
+        public IReadOnlyList<Models.SystemShellItem>? SystemItems
+        {
+            get => systemItems;
+            private set => SetProperty(ref systemItems, value);
+        }
+
+        public IReadOnlyList<Models.SystemShellItem>? BlockedSystemItems
+        {
+            get => blockedSystemItems;
+            private set => SetProperty(ref blockedSystemItems, value);
+        }
+
+        public IReadOnlyList<Models.SystemShellItem>? InterceptedSystemItems
+        {
+            get => interceptedSystemItems;
+            private set => SetProperty(ref interceptedSystemItems, value);
+        }
+
         public string SearchingText
         {
             get => searchingText;
@@ -79,6 +101,45 @@ namespace RightClickManager.ViewModels
                 }
             }
             catch { }
+        });
+        public string CurrentLanguage
+        {
+            get
+            {
+                try
+                {
+                    using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RightClickManager", false);
+                    return key?.GetValue("Language")?.ToString() ?? "system";
+                }
+                catch { return "system"; }
+            }
+            set
+            {
+                try
+                {
+                    using var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"Software\RightClickManager");
+                    key.SetValue("Language", value);
+                    OnPropertyChanged(nameof(CurrentLanguage));
+                    OnPropertyChanged(nameof(IsSystemLanguage));
+                    OnPropertyChanged(nameof(IsChineseLanguage));
+                    OnPropertyChanged(nameof(IsEnglishLanguage));
+                    
+                    App.ApplyLanguage(value);
+                }
+                catch { }
+            }
+        }
+
+        public bool IsSystemLanguage => CurrentLanguage == "system";
+        public bool IsChineseLanguage => CurrentLanguage == "zh-CN";
+        public bool IsEnglishLanguage => CurrentLanguage == "en-US";
+
+        public RightClickManager.Base.RelayCommand<string> SetLanguageCommand => new RightClickManager.Base.RelayCommand<string>(lang =>
+        {
+            if (!string.IsNullOrEmpty(lang))
+            {
+                CurrentLanguage = lang;
+            }
         });
 
         public AsyncRelayCommand<string> SearchCommand => searchCommand ??= new AsyncRelayCommand<string>(async search =>
@@ -145,11 +206,112 @@ namespace RightClickManager.ViewModels
                     }
                 }
 
-                Dispatcher.UIThread.Post(() => 
+                Dispatcher.UIThread.Post(() =>
                 {
                     BlockedApps = blockedList;
                     InterceptedApps = interceptedList;
                 });
+
+                // --- System-level item enumeration (non-PackagedCom extensions + shell verbs) ---
+                var sysAllowed = new List<Models.SystemShellItem>();
+                var sysBlocked = new List<Models.SystemShellItem>();
+                var sysIntercepted = new List<Models.SystemShellItem>();
+
+                // Filter already-seen PackagedCom CLSIDs to avoid duplicates
+                var packagedComClsids = new HashSet<Guid>();
+                foreach (var pkg in comPackages)
+                    foreach (var info in pkg.Clsids)
+                        packagedComClsids.Add(info.Clsid);
+
+                // 1. Shell extensions from non-PackagedCom shellex paths
+                foreach (var root in ShellMenuScanner.ExtensionRoots)
+                {
+                    try
+                    {
+                        using var rootKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(root, false);
+                        if (rootKey == null) continue;
+                        foreach (var name in rootKey.GetSubKeyNames())
+                        {
+                            if (!Guid.TryParse(name, out var clsid)) continue;
+                            if (packagedComClsids.Contains(clsid)) continue;
+
+                            if (!string.IsNullOrEmpty(search))
+                            {
+                                if (!clsid.ToString("B").Contains(search, StringComparison.OrdinalIgnoreCase)
+                                    && !clsid.ToString("N").Contains(search, StringComparison.OrdinalIgnoreCase)
+                                    && !root.Contains(search, StringComparison.OrdinalIgnoreCase))
+                                    continue;
+                            }
+
+                            var displayName = ShellMenuScanner.ResolveExtensionDisplayName(clsid);
+                            var fullDisplay = $"[{root.Split('\\')[0]}] {displayName}";
+
+                            bool isBlocked = dict.ContainsKey(clsid);
+                            bool pending = isBlocked && dict.TryGetValue(clsid, out var bc) && bc.IsPending;
+                            bool blocked = isBlocked && !pending;
+                            bool canModify = !isBlocked || dict[clsid].Type != PackagedComHelper.BlockedClsidType.LocalMachine;
+
+                            var item = new Models.SystemShellItem(
+                                clsid.ToString("B"), fullDisplay, root, isVerb: false,
+                                clsid.ToString("B"), isBlocked, pending, canModify);
+
+                            if (!isBlocked)
+                                sysAllowed.Add(item);
+                            else if (pending)
+                                sysIntercepted.Add(item);
+                            else
+                                sysBlocked.Add(item);
+                        }
+                    }
+                    catch { }
+                }
+
+                // 2. Shell verbs from shell paths
+                foreach (var root in ShellMenuScanner.VerbRoots)
+                {
+                    try
+                    {
+                        using var rootKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(root, false);
+                        if (rootKey == null) continue;
+                        foreach (var verbName in rootKey.GetSubKeyNames())
+                        {
+                            var verbPath = root + "\\" + verbName;
+
+                            if (!string.IsNullOrEmpty(search))
+                            {
+                                if (!verbPath.Contains(search, StringComparison.OrdinalIgnoreCase)
+                                    && !verbName.Contains(search, StringComparison.OrdinalIgnoreCase))
+                                    continue;
+                            }
+
+                            var verbDisplay = ShellMenuScanner.ResolveVerbDisplayName(verbPath);
+                            var fullDisplay = $"[{root.Split('\\')[0]}] {verbDisplay}";
+
+                            bool verbBlocked = ShellMenuScanner.IsVerbBlocked(verbPath);
+                            bool verbPending = verbBlocked && ShellMenuScanner.IsVerbPending(verbPath);
+
+                            var item = new Models.SystemShellItem(
+                                verbPath, fullDisplay, root, isVerb: true,
+                                handlerClsid: null, verbBlocked, verbPending, canModify: true);
+
+                            if (!verbBlocked)
+                                sysAllowed.Add(item);
+                            else if (verbPending)
+                                sysIntercepted.Add(item);
+                            else
+                                sysBlocked.Add(item);
+                        }
+                    }
+                    catch { }
+                }
+
+                Dispatcher.UIThread.Post(() =>
+                {
+                    SystemItems = sysAllowed;
+                    BlockedSystemItems = sysBlocked;
+                    InterceptedSystemItems = sysIntercepted;
+                });
+
                 return list;
 
                 static bool GuidContains(Guid guid, string text) =>
@@ -159,3 +321,4 @@ namespace RightClickManager.ViewModels
         });
     }
 }
+

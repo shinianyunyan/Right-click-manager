@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,12 +10,16 @@ namespace RightClickManager.Helpers
         private static ContextMenuInterceptor? _instance;
         public static ContextMenuInterceptor Instance => _instance ??= new ContextMenuInterceptor();
 
-        private readonly HashSet<Guid> _baselineClsids = new();
+        private HashSet<Guid> _baselineClsids = new();
+        private HashSet<string> _baselineVerbs = new(StringComparer.OrdinalIgnoreCase);
         private bool _isStarted;
         private CancellationTokenSource? _cts;
 
-        // Custom event triggered when a new context menu is intercepted
+        // Triggered when a new CLSID-based extension (PackagedCom or shellex) is intercepted
         public event EventHandler<Guid>? OnItemIntercepted;
+
+        // Triggered when a new shell verb is intercepted
+        public event EventHandler<string>? OnVerbIntercepted;
 
         public void Start()
         {
@@ -24,10 +27,7 @@ namespace RightClickManager.Helpers
             _isStarted = true;
             _cts = new CancellationTokenSource();
 
-            // 1. Establish the baseline
             UpdateBaseline();
-
-            // 2. Start monitoring task
             Task.Run(async () => await MonitorLoop(_cts.Token));
         }
 
@@ -39,56 +39,51 @@ namespace RightClickManager.Helpers
 
         private void UpdateBaseline()
         {
-            var packages = PackagedComHelper.GetAllComPackages();
-            _baselineClsids.Clear();
-            foreach (var package in packages)
-            {
-                foreach (var info in package.Clsids)
-                {
-                    _baselineClsids.Add(info.Clsid);
-                }
-            }
+            _baselineClsids = ShellMenuScanner.ScanAllExtensionClsids();
+            _baselineVerbs = ShellMenuScanner.ScanAllVerbPaths();
         }
 
         private async Task MonitorLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
-                // Poll every 5 seconds
                 await Task.Delay(TimeSpan.FromSeconds(5), token);
 
                 try
                 {
-                    var packages = PackagedComHelper.GetAllComPackages();
-                    var currentClsids = new HashSet<Guid>();
-
-                    foreach (var package in packages)
+                    // --- Check for new CLSID-based extensions (PackagedCom + shellex) ---
+                    var currentClsids = ShellMenuScanner.ScanAllExtensionClsids();
+                    foreach (var clsid in currentClsids)
                     {
-                        foreach (var info in package.Clsids)
+                        if (!_baselineClsids.Contains(clsid))
                         {
-                            currentClsids.Add(info.Clsid);
-
-                            // Detect New CLSID
-                            if (!_baselineClsids.Contains(info.Clsid))
-                            {
-                                // Block it immediately (Quarantine) - Marked as Pending Approval
-                                PackagedComHelper.SetBlockedClsid(info.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, true, true);
-                                
-                                // Update baseline to prevent repeated blocking loops
-                                _baselineClsids.Add(info.Clsid);
-
-                                // Trigger event for UI notification
-                                OnItemIntercepted?.Invoke(this, info.Clsid);
-                            }
+                            PackagedComHelper.SetBlockedClsid(
+                                clsid,
+                                PackagedComHelper.BlockedClsidType.CurrentUser,
+                                blocked: true,
+                                isPending: true);
+                            _baselineClsids.Add(clsid);
+                            OnItemIntercepted?.Invoke(this, clsid);
                         }
                     }
-
-                    // Remove items from baseline that have been uninstalled
                     _baselineClsids.IntersectWith(currentClsids);
+
+                    // --- Check for new shell verbs ---
+                    var currentVerbs = ShellMenuScanner.ScanAllVerbPaths();
+                    foreach (var verbPath in currentVerbs)
+                    {
+                        if (!_baselineVerbs.Contains(verbPath))
+                        {
+                            ShellMenuScanner.BlockVerb(verbPath, isPending: true);
+                            _baselineVerbs.Add(verbPath);
+                            OnVerbIntercepted?.Invoke(this, verbPath);
+                        }
+                    }
+                    _baselineVerbs.IntersectWith(currentVerbs);
                 }
                 catch
                 {
-                    // Ignore transient registry reading errors like access denied
+                    // Ignore transient registry reading errors
                 }
             }
         }

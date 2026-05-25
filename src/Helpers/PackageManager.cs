@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Windows.Win32;
-using Windows.Win32.Storage.Packaging.Appx;
+
 
 namespace RightClickManager.Helpers
 {
@@ -16,69 +16,8 @@ namespace RightClickManager.Helpers
     {
         private static string[]? defaultLanguages;
 
-        public unsafe static PackageInfo? GetPackageInfoByFullName(string packageFullName)
+        public static PackageInfo? GetPackageInfoByFullName(string packageFullName)
         {
-            const uint PACKAGE_FILTER_HEAD = 0x00000010;
-
-            fixed (char* pPfn = packageFullName)
-            {
-                Windows.Win32.Storage.Packaging.Appx._PACKAGE_INFO_REFERENCE* reference = null;
-
-                try
-                {
-
-                    var err = Windows.Win32.PInvoke.OpenPackageInfoByFullName(pPfn, 0, &reference);
-                    if (err == Windows.Win32.Foundation.WIN32_ERROR.ERROR_SUCCESS)
-                    {
-                        uint bufferLength = 0;
-                        uint count = 0;
-
-                        err = Windows.Win32.PInvoke.GetPackageInfo(
-                            reference,
-                            PACKAGE_FILTER_HEAD,
-                            &bufferLength,
-                            null,
-                            &count);
-
-                        if (count > 0 && err == Windows.Win32.Foundation.WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER)
-                        {
-                            using (var memoryOwner = MemoryPool<byte>.Shared.Rent((int)bufferLength))
-                            using (var memoryHandle = memoryOwner.Memory.Pin())
-                            {
-                                err = Windows.Win32.PInvoke.GetPackageInfo(
-                                    reference,
-                                    PACKAGE_FILTER_HEAD,
-                                    &bufferLength,
-                                    (byte*)memoryHandle.Pointer,
-                                    &count);
-
-                                if (err == Windows.Win32.Foundation.WIN32_ERROR.ERROR_SUCCESS)
-                                {
-                                    var packageInfo = (PACKAGE_INFO*)memoryHandle.Pointer;
-                                    var version = &packageInfo->packageId.version.Anonymous.Anonymous;
-
-                                    return new PackageInfo(
-                                        packageInfo->path.ToString(),
-                                        packageInfo->packageFullName.ToString(),
-                                        packageInfo->packageFamilyName.ToString(),
-                                        new PackageId(
-                                            (PackageId.ProcessorArchitecture)packageInfo->packageId.processorArchitecture,
-                                            new Version(version->Major, version->Minor, version->Build, version->Revision),
-                                            packageInfo->packageId.name.ToString(),
-                                            packageInfo->packageId.publisher.ToString(),
-                                            packageInfo->packageId.resourceId.ToString(),
-                                            packageInfo->packageId.publisherId.ToString()));
-                                }
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    if (reference != null) Windows.Win32.PInvoke.ClosePackageInfo(reference);
-                }
-            }
-
             try
             {
                 using var packageInfoKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey($@"Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\{packageFullName}", false);
@@ -90,7 +29,7 @@ namespace RightClickManager.Helpers
                         packageFullName,
                         packageFullName.Split('_')[0],
                         new PackageId(
-                            PackageId.ProcessorArchitecture.X64, // placeholder
+                            PackageId.ProcessorArchitecture.X64,
                             new Version(0, 0),
                             packageFullName.Split('_')[0],
                             "",

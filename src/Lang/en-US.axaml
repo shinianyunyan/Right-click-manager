@@ -1,0 +1,30 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="LangText_AppTitle">RightClickManager</system:String>
+    <system:String x:Key="LangText_ShowMainWindow">Show MainWindow</system:String>
+    <system:String x:Key="LangText_ExitApp">Fully Exit</system:String>
+    <system:String x:Key="LangText_Settings">Settings</system:String>
+    <system:String x:Key="LangText_AutoStart">Run on Startup</system:String>
+    <system:String x:Key="LangText_Language">Language</system:String>
+    <system:String x:Key="LangText_FollowSystem">Follow System</system:String>
+    <system:String x:Key="LangText_SearchWatermark">Type Application Name or GUID to search</system:String>
+    <system:String x:Key="LangText_Search">Search</system:String>
+    <system:String x:Key="LangText_Refresh">Refresh</system:String>
+    <system:String x:Key="LangText_TabAllApps">All Apps</system:String>
+    <system:String x:Key="LangText_TabBlockedApps">Blocked</system:String>
+    <system:String x:Key="LangText_TabInterceptedApps">Intercepted</system:String>
+    <system:String x:Key="LangText_NoData">No Data</system:String>
+    <system:String x:Key="LangText_Allow">Allow</system:String>
+    <system:String x:Key="LangText_Block">Block</system:String>
+    <system:String x:Key="LangText_TabAllowed">Allowed Apps</system:String>
+    <system:String x:Key="LangText_TabDisabled">Disabled Apps</system:String>
+    <system:String x:Key="LangText_TabPending">Pending Intercept</system:String>
+    <system:String x:Key="LangText_EnableAll">Enable All</system:String>
+    <system:String x:Key="LangText_DisableAll">Disable All</system:String>
+    <system:String x:Key="LangText_InterceptedTitle">Interception Alert</system:String>
+    <system:String x:Key="LangText_InterceptedMsg">A newly added context menu item was detected and intercepted. Please review it in the main window.</system:String>
+    <system:String x:Key="LangText_InterceptedVerbMsg">A new shell verb was detected and intercepted.</system:String>
+    <system:String x:Key="LangText_SystemItems">System Context Menu Items</system:String>
+</ResourceDictionary>
+
