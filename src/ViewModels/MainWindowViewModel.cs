@@ -72,7 +72,7 @@ namespace RightClickManager.ViewModels
                         var path = System.Environment.ProcessPath;
                         if (!string.IsNullOrEmpty(path))
                         {
-                            key.SetValue("RightClickManager", $"\"{path}\"");
+                            key.SetValue("RightClickManager", $"\"{path}\" --hidden");
                         }
                     }
                     OnPropertyChanged(nameof(IsAutoStartEnabled));

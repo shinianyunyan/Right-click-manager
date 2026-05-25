@@ -11,11 +11,20 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    private MainWindow? _mainWindow;
+
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow();
+            desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnExplicitShutdown;
+            var isHidden = System.Linq.Enumerable.Contains(desktop.Args ?? System.Array.Empty<string>(), "--hidden");
+
+            if (!isHidden)
+            {
+                _mainWindow = new MainWindow();
+                desktop.MainWindow = _mainWindow;
+            }
 
             // Start intercepting and blocking new clsids
             Helpers.ContextMenuInterceptor.Instance.Start();
@@ -25,10 +34,8 @@ public partial class App : Application
             {
                 Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    if (desktop.MainWindow.DataContext is ViewModels.MainWindowViewModel vm)
-                    {
-                        vm.SearchCommand.Execute(vm.SearchingText);
-                    }
+                    var vm = ViewModels.ViewModelLocator.Instance.MainWindowViewModel;
+                    vm.SearchCommand.Execute(vm.SearchingText);
                 });
             };
         }
@@ -58,8 +65,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow?.Show();
-            desktop.MainWindow?.Activate();
+            if (_mainWindow == null)
+            {
+                _mainWindow = new MainWindow();
+                desktop.MainWindow = _mainWindow;
+            }
+            _mainWindow.Show();
+            _mainWindow.Activate();
         }
     }
 }

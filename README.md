@@ -1,34 +1,34 @@
-<h1 align="center">
-  <span>RightClickManager</span>
-</h1>
+<h1 align="center">RightClickManager (右键菜单管理器)</h1>
+
 <p align="center">
-  <span align="center">RightClickManager是一个轻量级的右键管理程序，它可帮助您管理 Windows 上的右键菜单，并避免第三方程序向你的右键菜单里塞屎。</span>
+  一个轻量、现代且高效的 Windows 右键菜单管理工具，帮助你夺回系统右键菜单的控制权，拒绝第三方软件尝试带来的混乱。
 </p>
 
->[!WARNING]
->本项目的相当一部分代码由 AI 辅助生成，并经过持续的人工作业、联调和重构，但它仍然可能存在遗漏、边界情况处理不足或行为与预期不完全一致的问题。 如果你在使用过程中发现 Bug、兼容性问题、异常行为或文档缺失，欢迎积极提交 Issue。最好附上复现步骤、日志、截图和系统版本信息，这会非常有帮助。
+## ✨ 特点与功能
 
+* **全面管理右键菜单**
+  支持浏览并管理系统各类右键菜单项。不仅支持传统基于注册表的程序菜单，还支持现代打包应用 (Packaged App / UWP / WinUI) 写入的新版右键菜单。
+* **实时监控与拦截审批**
+  提供右键新增项的实时监控功能。当第三方软件在后台试图悄悄添加右键菜单时，程序会自动拦截，并通过审批工作流让用户决定是否放行，从而保持右键菜单干净清爽。
+* **现代化界面**
+  基于 Avalonia UI 与 FluentAvalonia 构建，提供具有 Fluent Design 设计风格的现代化界面，支持亚克力模糊和自适应系统主题。
+* **后台托盘与开机自启**
+  支持开启“开机自启”。启动后程序默认以静默模式（隐藏主界面）在系统托盘 (System Tray) 后台运行，随用随唤，不再忍受每次开机弹窗的困扰。
+* **一键编译与打包**
+  内置脚本可一键发布并生成对应 \x64\、\x86\ 和 \ARM64\ 架构的独立免安装程序。
 
-本仓库在第二个项目的基础上进行了二次开发，并借鉴了第一个项目关于实时监控右键新增并进行拦截审批的实现思路。
+## 🚀 编译与使用
 
-主要功能
-- 浏览并管理系统右键菜单项（注册表/包裹应用）
-- 实时监控右键新增项并支持拦截与审批工作流（参考并扩展自 PLFJY/ContextMenuMgr）
-- 打包生成可执行程序（通过 `Publish.bat`）
+1. 确保系统已安装 [.NET 8.0 SDK](https://dotnet.microsoft.com/download) 或更高版本。
+2. 克隆本仓库代码到本地。
+3. 运行项目目录下的 \src/Publish.bat\ 脚本。
+4. 到生成的 \src/bin/output/\ 路径下双击执行 \右键菜单管理器.exe\。
 
-贡献与报告 Bug
-欢迎提交 Issue 或 Pull Request。提交 Issue 时请尽量提供：
-- 操作系统与版本
-- 可复现的步骤
-- 日志、截图或异常信息
+## 🤝 贡献与反馈
+[!WARNING]
+>本项目的极大部分代码及重构过程经过 AI 辅助与人工作业联调。如果你在使用过程中遇到 Bug、界面兼容问题、异常行为，欢迎提交 Issue 或 Pull Request。反馈时最好附带系统版本、复现步骤及对应截图。
 
-许可证
-本项目整体以 GNU General Public License v3.0 (GPLv3) 发布，因为仓库包含来自 PLFJY/ContextMenuMgr 的 GPLv3 代码。cnbluefire/ModernContextMenuManager 的部分代码遵循 MIT 许可证；这些部分在 `LICENSE` 中保留 MIT 版权与许可文本。有关详细信息和如何获取对应的源代码，请参阅 `LICENSE`。
+## 📄 许可证
 
-来源与致谢
-本项目基于并参考了以下两个开源项目的实现：
-- PLFJY/ContextMenuMgr: https://github.com/PLFJY/ContextMenuMgr (GPLv3)
-- cnbluefire/ModernContextMenuManager: https://github.com/cnbluefire/ModernContextMenuManager (MIT)
-
-来源与许可说明
-- 本仓库包含 GPLv3（PLFJY）与 MIT（cnbluefire）代码；因此整体以 GPLv3 发布，并保留 MIT 文件的原始版权与许可声明。
+本项目整体以 [GPLv3 许可证](./LICENSE) 发布。
+*本项目部分源码借鉴、参考自开源项目 [PLFJY/ContextMenuMgr](https://github.com/PLFJY/ContextMenuMgr) 和 [cnbluefire/ModernContextMenuManager](https://github.com/cnbluefire/ModernContextMenuManager)，感谢原作者带来的启发。*
