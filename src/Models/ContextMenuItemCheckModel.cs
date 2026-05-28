@@ -8,12 +8,13 @@ namespace RightClickManager.Models
     {
         private bool enabled;
 
-        public ContextMenuItemCheckModel(ContextMenuItem contextMenuItem, bool enabled, bool canModify, bool isPending = false)
+        public ContextMenuItemCheckModel(ContextMenuItem contextMenuItem, bool enabled, bool canModify, bool isPending = false, string? knownDllPath = null)
         {
             ContextMenuItem = contextMenuItem;
             CanModify = canModify;
             this.enabled = enabled;
             this.isPending = isPending;
+            _knownDllPath = knownDllPath;
         }
 
         public ContextMenuItem ContextMenuItem { get; }
@@ -60,6 +61,7 @@ namespace RightClickManager.Models
             }
         }
 
+        private string? _knownDllPath;
         private string? _filePath;
         private bool _filePathResolved;
 
@@ -69,7 +71,15 @@ namespace RightClickManager.Models
             {
                 if (!_filePathResolved)
                 {
-                    _filePath = ShellMenuScanner.ResolveClsidFilePath(ContextMenuItem.Clsid);
+                    // Prefer the known DLL path from PackagedCom data
+                    if (!string.IsNullOrEmpty(_knownDllPath))
+                    {
+                        var expanded = System.Environment.ExpandEnvironmentVariables(_knownDllPath!);
+                        if (System.IO.File.Exists(expanded))
+                            _filePath = expanded;
+                    }
+                    // Fall back to registry CLSID lookup
+                    _filePath ??= ShellMenuScanner.ResolveClsidFilePath(ContextMenuItem.Clsid);
                     _filePathResolved = true;
                 }
                 return _filePath;
@@ -82,11 +92,7 @@ namespace RightClickManager.Models
         {
             var path = FilePath;
             if (!string.IsNullOrEmpty(path))
-            {
-                var dir = System.IO.Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(dir))
-                    System.Diagnostics.Process.Start("explorer.exe", dir);
-            }
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
         });
     }
 }

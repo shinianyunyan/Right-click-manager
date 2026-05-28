@@ -29,4 +29,5 @@
 	<system:String x:Key="LangText_ShowMore">展开全部...</system:String>
 	<system:String x:Key="LangText_ShowLess">收起</system:String>
 	<system:String x:Key="LangText_OpenFileLocation">打开所在目录</system:String>
+	<system:String x:Key="LangText_AppItems">应用软件右键菜单项</system:String>
 </ResourceDictionary>

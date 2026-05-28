@@ -14,17 +14,20 @@ namespace RightClickManager.Models
             AppInfo appInfo,
             PackageInfo packageInfo,
             IEnumerable<ContextMenuItem> items,
-            Dictionary<Guid, PackagedComHelper.BlockedClsid> blockedClsids)
+            Dictionary<Guid, PackagedComHelper.BlockedClsid> blockedClsids,
+            Dictionary<Guid, string>? clsidDllPaths = null)
         {
             AppInfo = appInfo;
             PackageInfo = packageInfo;
             ContextMenuItems = items.Select(c =>
             {
+                string? dllPath = null;
+                clsidDllPaths?.TryGetValue(c.Clsid, out dllPath);
                 if (blockedClsids.TryGetValue(c.Clsid, out var blockedClsid))
                 {
-                    return new ContextMenuItemCheckModel(c, false, blockedClsid.Type != PackagedComHelper.BlockedClsidType.LocalMachine, blockedClsid.IsPending);
+                    return new ContextMenuItemCheckModel(c, false, blockedClsid.Type != PackagedComHelper.BlockedClsidType.LocalMachine, blockedClsid.IsPending, dllPath);
                 }
-                return new ContextMenuItemCheckModel(c, true, true, false);
+                return new ContextMenuItemCheckModel(c, true, true, false, dllPath);
             }).ToArray();
 
             if (string.IsNullOrEmpty(AppInfo.DisplayName))

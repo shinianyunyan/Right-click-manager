@@ -29,5 +29,6 @@
 	<system:String x:Key="LangText_ShowMore">Show All...</system:String>
 	<system:String x:Key="LangText_ShowLess">Show Less</system:String>
 	<system:String x:Key="LangText_OpenFileLocation">Open File Location</system:String>
+	<system:String x:Key="LangText_AppItems">Application Context Menu Items</system:String>
 </ResourceDictionary>
 

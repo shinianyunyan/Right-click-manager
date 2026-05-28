@@ -96,6 +96,7 @@
 			<TabItem Header="{DynamicResource LangText_TabAllowed}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
+					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,4,8,4" />
 					<ItemsControl ItemsSource="{Binding Apps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">
@@ -188,6 +189,7 @@
 			<TabItem Header="{DynamicResource LangText_TabDisabled}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
+					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,4,8,4" />
 					<ItemsControl ItemsSource="{Binding BlockedApps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">
@@ -280,6 +282,7 @@
 			<TabItem Header="{DynamicResource LangText_TabPending}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
+					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,4,8,4" />
 					<ItemsControl ItemsSource="{Binding InterceptedApps}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:PackagedAppModel">

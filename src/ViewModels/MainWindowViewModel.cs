@@ -151,6 +151,12 @@ namespace RightClickManager.ViewModels
                 comPackages = PackagedComHelper.GetAllComPackages();
                 blockedClsids = PackagedComHelper.GetBlockedClsids();
 
+                var clsidDllPaths = new Dictionary<Guid, string>();
+                foreach (var pkg in comPackages)
+                    foreach (var ci in pkg.Clsids)
+                        if (!string.IsNullOrEmpty(ci.DllPath))
+                            clsidDllPaths[ci.Clsid] = ci.DllPath;
+
                 var dict = blockedClsids
                     .DistinctBy(c => c.Clsid)
                     .ToDictionary(c => c.Clsid, c => c);
@@ -190,15 +196,15 @@ namespace RightClickManager.ViewModels
 
                                     if (allowed.Count > 0)
                                     {
-                                        list.Add(new PackagedAppModel(appInfo, packageInfo, allowed, dict));
+                                        list.Add(new PackagedAppModel(appInfo, packageInfo, allowed, dict, clsidDllPaths));
                                     }
                                     if (blockedManually.Count > 0)
                                     {
-                                        blockedList.Add(new PackagedAppModel(appInfo, packageInfo, blockedManually, dict));
+                                        blockedList.Add(new PackagedAppModel(appInfo, packageInfo, blockedManually, dict, clsidDllPaths));
                                     }
                                     if (autoIntercepted.Count > 0)
                                     {
-                                        interceptedList.Add(new PackagedAppModel(appInfo, packageInfo, autoIntercepted, dict));
+                                        interceptedList.Add(new PackagedAppModel(appInfo, packageInfo, autoIntercepted, dict, clsidDllPaths));
                                     }
                                 }
                             }

@@ -108,7 +108,7 @@ namespace RightClickManager.Models
             {
                 var dir = System.IO.Path.GetDirectoryName(path);
                 if (!string.IsNullOrEmpty(dir))
-                    System.Diagnostics.Process.Start("explorer.exe", dir);
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
             }
         });
     }

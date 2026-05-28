@@ -1,6 +1,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using Windows.Win32;
 
 namespace RightClickManager.Helpers
 {
@@ -35,9 +36,6 @@ namespace RightClickManager.Helpers
         private const int HideBasedOnVelocityIdDisabled = 0x639bc8;
         private const string PendingMarker = "RightClickManager_Pending";
 
-        /// <summary>
-        /// Scans PackagedCom + all shellex\ContextMenuHandlers paths and returns all CLSIDs.
-        /// </summary>
         public static HashSet<Guid> ScanAllExtensionClsids()
         {
             var set = new HashSet<Guid>();
@@ -67,9 +65,6 @@ namespace RightClickManager.Helpers
             return set;
         }
 
-        /// <summary>
-        /// Scans all shell verb paths and returns the set of full registry paths (relative to HKCR).
-        /// </summary>
         public static HashSet<string> ScanAllVerbPaths()
         {
             var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -91,10 +86,6 @@ namespace RightClickManager.Helpers
             return set;
         }
 
-        /// <summary>
-        /// Blocks a shell verb by setting HideBasedOnVelocityId, LegacyDisable, and ProgrammaticAccessOnly.
-        /// When isPending is true, also writes a pending marker so the UI can show it as intercepted.
-        /// </summary>
         public static bool BlockVerb(string verbRegistryPath, bool isPending = false)
         {
             try
@@ -124,9 +115,6 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
-        /// <summary>
-        /// Unblocks a shell verb by removing all hide/disable values and the pending marker.
-        /// </summary>
         public static bool UnblockVerb(string verbRegistryPath)
         {
             try
@@ -144,9 +132,6 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
-        /// <summary>
-        /// Checks if a shell verb is currently blocked/hidden.
-        /// </summary>
         public static bool IsVerbBlocked(string verbRegistryPath)
         {
             try
@@ -165,9 +150,6 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
-        /// <summary>
-        /// Checks if the pending marker exists on a shell verb key.
-        /// </summary>
         public static bool IsVerbPending(string verbRegistryPath)
         {
             try
@@ -178,9 +160,6 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
-        /// <summary>
-        /// Resolves a human-readable display name for a shell verb registry key.
-        /// </summary>
         public static string ResolveVerbDisplayName(string verbRegistryPath)
         {
             try
@@ -190,23 +169,19 @@ namespace RightClickManager.Helpers
                 {
                     var muiverb = key.GetValue("MUIVerb") as string;
                     if (!string.IsNullOrEmpty(muiverb))
-                        return muiverb;
+                        return ResolveIndirectString(muiverb);
 
                     var defaultVal = key.GetValue("") as string;
                     if (!string.IsNullOrEmpty(defaultVal))
-                        return defaultVal;
+                        return ResolveIndirectString(defaultVal);
                 }
             }
             catch { }
 
-            // Fallback: use the verb key name (last segment of the path)
             var lastSlash = verbRegistryPath.LastIndexOf('\\');
             return lastSlash >= 0 ? verbRegistryPath[(lastSlash + 1)..] : verbRegistryPath;
         }
 
-        /// <summary>
-        /// Resolves a display name for a shell extension from the CLSID key.
-        /// </summary>
         public static string ResolveExtensionDisplayName(Guid clsid)
         {
             try
@@ -217,11 +192,32 @@ namespace RightClickManager.Helpers
                 {
                     var defaultVal = key.GetValue("") as string;
                     if (!string.IsNullOrEmpty(defaultVal))
-                        return defaultVal;
+                        return ResolveIndirectString(defaultVal);
                 }
             }
             catch { }
             return clsid.ToString("B");
+        }
+
+        /// <summary>Resolves indirect string references like @path,-id or @{package?resource}.</summary>
+        private static string ResolveIndirectString(string raw)
+        {
+            if (string.IsNullOrEmpty(raw) || !raw.StartsWith("@"))
+                return raw;
+
+            try
+            {
+                Span<char> buffer = stackalloc char[1024];
+                var hr = PInvoke.SHLoadIndirectString(raw, buffer);
+                if (hr.Succeeded)
+                {
+                    var len = buffer.IndexOf('\0');
+                    if (len >= 0)
+                        return buffer[..len].ToString();
+                }
+            }
+            catch { }
+            return raw;
         }
 
         private static bool IsOpenInNewWindowVerb(string registryPath)
@@ -240,6 +236,7 @@ namespace RightClickManager.Helpers
                         ?? GetClsidServerPath(clsidStr, "LocalServer32");
                 if (!string.IsNullOrEmpty(path))
                 {
+                    path = ResolveIndirectString(path);
                     path = System.Environment.ExpandEnvironmentVariables(path);
                     if (System.IO.File.Exists(path))
                         return path;
@@ -251,7 +248,7 @@ namespace RightClickManager.Helpers
 
         private static string? GetClsidServerPath(string clsidStr, string serverKey)
         {
-            using var key = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(
+            using var key = Registry.ClassesRoot.OpenSubKey(
                 $@"CLSID\{clsidStr}\{serverKey}", false);
             return key?.GetValue(null) as string;
         }
@@ -261,11 +258,11 @@ namespace RightClickManager.Helpers
         {
             try
             {
-                using var cmdKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(
+                using var cmdKey = Registry.ClassesRoot.OpenSubKey(
                     verbRegistryPath + @"\command", false);
                 var cmd = cmdKey?.GetValue(null) as string;
                 if (!string.IsNullOrEmpty(cmd))
-                    return ExtractExePath(cmd);
+                    return ExtractExePath(ResolveIndirectString(cmd));
             }
             catch { }
             return null;
@@ -273,7 +270,6 @@ namespace RightClickManager.Helpers
 
         private static string? ExtractExePath(string commandLine)
         {
-            // Strip quotes and extract the first path component
             var trimmed = commandLine.Trim();
             if (trimmed.StartsWith("\""))
             {
