@@ -141,6 +141,9 @@
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+					<Border Background="#10000000" CornerRadius="4" Padding="16,12" Margin="8,4" IsVisible="{Binding SystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+						<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+					</Border>
 					<ItemsControl ItemsSource="{Binding SystemItems}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:SystemShellGroup">
@@ -234,6 +237,9 @@
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+t				<Border Background="#10000000" CornerRadius="4" Padding="16,12" Margin="8,4" IsVisible="{Binding BlockedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+						<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+					</Border>
 					<ItemsControl ItemsSource="{Binding BlockedSystemItems}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:SystemShellGroup">
@@ -327,6 +333,9 @@
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
+t				<Border Background="#10000000" CornerRadius="4" Padding="16,12" Margin="8,4" IsVisible="{Binding InterceptedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+						<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+					</Border>
 					<ItemsControl ItemsSource="{Binding InterceptedSystemItems}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate x:DataType="models:SystemShellGroup">

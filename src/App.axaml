@@ -27,7 +27,8 @@
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 			<vm:ViewModelLocator x:Key="Locator" />
-			<helper:NotConverter x:Key="NotConverter" />
+							<helper:CollectionEmptyConverter x:Key="CollectionEmptyConverter" />
+				<helper:NotConverter x:Key="NotConverter" />
 			<helper:StringIsEmptyConverter x:Key="StringIsEmptyConverter" />
 			<helper:StringIsNotEmptyConverter x:Key="StringIsNotEmptyConverter" />
 		</ResourceDictionary>

@@ -157,7 +157,7 @@ namespace RightClickManager.Helpers
                     }
                     else
                     {
-                        subKey.DeleteValue(name);
+                        subKey.DeleteValue(name, throwOnMissingValue: false);
                         return true;
                     }
                 }

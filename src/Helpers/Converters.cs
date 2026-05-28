@@ -37,6 +37,21 @@ namespace RightClickManager.Helpers
         }
     }
 
+    public class CollectionEmptyConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is null) return true;
+            if (value is System.Collections.ICollection col && col.Count == 0) return true;
+            return false;
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class StringIsNotEmptyConverter : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

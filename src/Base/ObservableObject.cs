@@ -39,7 +39,7 @@ namespace RightClickManager.Base
                     if (_async)
                     {
                         Dispatcher.UIThread.VerifyAccess();
-                        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+                        await Dispatcher.UIThread.InvokeAsync(() => OnPropertyChanged(_propertyName), DispatcherPriority.Loaded);
                     }
                     else
                     {
