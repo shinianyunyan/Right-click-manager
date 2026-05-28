@@ -73,5 +73,43 @@ namespace RightClickManager.Models
                     asyncNotifyWhenNotChanged: true);
             }
         }
+
+        private string? _filePath;
+        private bool _filePathResolved;
+
+        private string? ResolveFilePath()
+        {
+            if (IsVerb)
+                return ShellMenuScanner.ResolveVerbFilePath(RegistryPath);
+            if (HandlerClsid is not null && Guid.TryParse(HandlerClsid, out var clsid))
+                return ShellMenuScanner.ResolveClsidFilePath(clsid);
+            return null;
+        }
+
+        public string? FilePath
+        {
+            get
+            {
+                if (!_filePathResolved)
+                {
+                    _filePath = ResolveFilePath();
+                    _filePathResolved = true;
+                }
+                return _filePath;
+            }
+        }
+
+        public bool HasFilePath => !string.IsNullOrEmpty(FilePath);
+
+        public RelayCommand OpenFileLocationCommand => new RelayCommand(() =>
+        {
+            var path = FilePath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                var dir = System.IO.Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir))
+                    System.Diagnostics.Process.Start("explorer.exe", dir);
+            }
+        });
     }
 }

@@ -26,4 +26,7 @@
     <system:String x:Key="LangText_InterceptedMsg">检测到新添加的右键菜单。已自动拦截，请前往主界面审核。</system:String>
     <system:String x:Key="LangText_InterceptedVerbMsg">检测到新的 Shell 动词菜单项并已自动拦截。</system:String>
     <system:String x:Key="LangText_SystemItems">系统级右键菜单项</system:String>
+	<system:String x:Key="LangText_ShowMore">展开全部...</system:String>
+	<system:String x:Key="LangText_ShowLess">收起</system:String>
+	<system:String x:Key="LangText_OpenFileLocation">打开所在目录</system:String>
 </ResourceDictionary>

@@ -1,10 +1,6 @@
-﻿using RightClickManager.Base;
+using RightClickManager.Base;
 using RightClickManager.Helpers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RightClickManager.Models
 {
@@ -34,7 +30,7 @@ namespace RightClickManager.Models
             {
                 SetProperty(ref enabled, value,
                     onPropertyChanging: (oldValue, newValue) =>
-                        PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false), // User action means it's no longer pending
+                        PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);
             }
@@ -63,5 +59,34 @@ namespace RightClickManager.Models
                 return $"{ContextMenuItem.Clsid:B}";
             }
         }
+
+        private string? _filePath;
+        private bool _filePathResolved;
+
+        public string? FilePath
+        {
+            get
+            {
+                if (!_filePathResolved)
+                {
+                    _filePath = ShellMenuScanner.ResolveClsidFilePath(ContextMenuItem.Clsid);
+                    _filePathResolved = true;
+                }
+                return _filePath;
+            }
+        }
+
+        public bool HasFilePath => !string.IsNullOrEmpty(FilePath);
+
+        public RelayCommand OpenFileLocationCommand => new RelayCommand(() =>
+        {
+            var path = FilePath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                var dir = System.IO.Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir))
+                    System.Diagnostics.Process.Start("explorer.exe", dir);
+            }
+        });
     }
 }

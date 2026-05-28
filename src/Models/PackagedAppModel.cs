@@ -1,15 +1,15 @@
-﻿using Avalonia.Media.Imaging;
+using Avalonia.Media.Imaging;
 using RightClickManager.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RightClickManager.Models
 {
-    public partial class PackagedAppModel
+    public partial class PackagedAppModel : Base.ObservableObject
     {
+        private bool _isItemsExpanded;
+
         public PackagedAppModel(
             AppInfo appInfo,
             PackageInfo packageInfo,
@@ -61,7 +61,24 @@ namespace RightClickManager.Models
             }
         }
 
-        public RightClickManager.Base.RelayCommand EnableAllCommand => new RightClickManager.Base.RelayCommand(() =>
+        public bool HasMoreItems => ContextMenuItems.Count > 3;
+
+        public bool IsItemsExpanded
+        {
+            get => _isItemsExpanded;
+            set => SetProperty(ref _isItemsExpanded, value, notifyWhenNotChanged: true);
+        }
+
+        public IReadOnlyList<ContextMenuItemCheckModel> VisibleContextMenuItems =>
+            IsItemsExpanded ? ContextMenuItems : ContextMenuItems.Take(3).ToList();
+
+        public Base.RelayCommand ToggleItemsExpandCommand => new Base.RelayCommand(() =>
+        {
+            IsItemsExpanded = !IsItemsExpanded;
+            OnPropertyChanged(nameof(VisibleContextMenuItems));
+        });
+
+        public Base.RelayCommand EnableAllCommand => new Base.RelayCommand(() =>
         {
             foreach (var item in ContextMenuItems)
             {
@@ -69,7 +86,7 @@ namespace RightClickManager.Models
             }
         });
 
-        public RightClickManager.Base.RelayCommand DisableAllCommand => new RightClickManager.Base.RelayCommand(() =>
+        public Base.RelayCommand DisableAllCommand => new Base.RelayCommand(() =>
         {
             foreach (var item in ContextMenuItems)
             {

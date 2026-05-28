@@ -26,5 +26,8 @@
     <system:String x:Key="LangText_InterceptedMsg">A newly added context menu item was detected and intercepted. Please review it in the main window.</system:String>
     <system:String x:Key="LangText_InterceptedVerbMsg">A new shell verb was detected and intercepted.</system:String>
     <system:String x:Key="LangText_SystemItems">System Context Menu Items</system:String>
+	<system:String x:Key="LangText_ShowMore">Show All...</system:String>
+	<system:String x:Key="LangText_ShowLess">Show Less</system:String>
+	<system:String x:Key="LangText_OpenFileLocation">Open File Location</system:String>
 </ResourceDictionary>
 

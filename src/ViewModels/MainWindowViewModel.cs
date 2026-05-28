@@ -41,23 +41,23 @@ namespace RightClickManager.ViewModels
             private set => SetProperty(ref interceptedApps, value);
         }
 
-        private IReadOnlyList<Models.SystemShellItem>? systemItems;
-        private IReadOnlyList<Models.SystemShellItem>? blockedSystemItems;
-        private IReadOnlyList<Models.SystemShellItem>? interceptedSystemItems;
+        private IReadOnlyList<Models.SystemShellGroup>? systemItems;
+        private IReadOnlyList<Models.SystemShellGroup>? blockedSystemItems;
+        private IReadOnlyList<Models.SystemShellGroup>? interceptedSystemItems;
 
-        public IReadOnlyList<Models.SystemShellItem>? SystemItems
+        public IReadOnlyList<Models.SystemShellGroup>? SystemItems
         {
             get => systemItems;
             private set => SetProperty(ref systemItems, value);
         }
 
-        public IReadOnlyList<Models.SystemShellItem>? BlockedSystemItems
+        public IReadOnlyList<Models.SystemShellGroup>? BlockedSystemItems
         {
             get => blockedSystemItems;
             private set => SetProperty(ref blockedSystemItems, value);
         }
 
-        public IReadOnlyList<Models.SystemShellItem>? InterceptedSystemItems
+        public IReadOnlyList<Models.SystemShellGroup>? InterceptedSystemItems
         {
             get => interceptedSystemItems;
             private set => SetProperty(ref interceptedSystemItems, value);
@@ -307,9 +307,9 @@ namespace RightClickManager.ViewModels
 
                 Dispatcher.UIThread.Post(() =>
                 {
-                    SystemItems = sysAllowed;
-                    BlockedSystemItems = sysBlocked;
-                    InterceptedSystemItems = sysIntercepted;
+                    SystemItems = GroupByCategory(sysAllowed);
+                    BlockedSystemItems = GroupByCategory(sysBlocked);
+                    InterceptedSystemItems = GroupByCategory(sysIntercepted);
                 });
 
                 return list;
@@ -319,6 +319,14 @@ namespace RightClickManager.ViewModels
                     || guid.ToString("N").Contains(text, StringComparison.OrdinalIgnoreCase);
             });
         });
+
+        private static IReadOnlyList<Models.SystemShellGroup> GroupByCategory(List<Models.SystemShellItem> items)
+        {
+            return items
+                .GroupBy(i => i.Category.Split('\\')[0])
+                .Select(g => new Models.SystemShellGroup(g.Key, g.ToList()))
+                .ToList();
+        }
     }
 }
 

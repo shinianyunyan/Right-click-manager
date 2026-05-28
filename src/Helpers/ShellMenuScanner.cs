@@ -229,5 +229,69 @@ namespace RightClickManager.Helpers
             return registryPath.EndsWith(@"\Folder\shell\opennewwindow", StringComparison.OrdinalIgnoreCase)
                 || registryPath.Equals(@"Folder\shell\opennewwindow", StringComparison.OrdinalIgnoreCase);
         }
+
+        /// <summary>Resolves the file path for a CLSID from registry (InProcServer32 / LocalServer32).</summary>
+        public static string? ResolveClsidFilePath(Guid clsid)
+        {
+            try
+            {
+                var clsidStr = clsid.ToString("B").ToUpperInvariant();
+                var path = GetClsidServerPath(clsidStr, "InProcServer32")
+                        ?? GetClsidServerPath(clsidStr, "LocalServer32");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    path = System.Environment.ExpandEnvironmentVariables(path);
+                    if (System.IO.File.Exists(path))
+                        return path;
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private static string? GetClsidServerPath(string clsidStr, string serverKey)
+        {
+            using var key = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(
+                $@"CLSID\{clsidStr}\{serverKey}", false);
+            return key?.GetValue(null) as string;
+        }
+
+        /// <summary>Resolves the target file for a shell verb from its command key.</summary>
+        public static string? ResolveVerbFilePath(string verbRegistryPath)
+        {
+            try
+            {
+                using var cmdKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(
+                    verbRegistryPath + @"\command", false);
+                var cmd = cmdKey?.GetValue(null) as string;
+                if (!string.IsNullOrEmpty(cmd))
+                    return ExtractExePath(cmd);
+            }
+            catch { }
+            return null;
+        }
+
+        private static string? ExtractExePath(string commandLine)
+        {
+            // Strip quotes and extract the first path component
+            var trimmed = commandLine.Trim();
+            if (trimmed.StartsWith("\""))
+            {
+                var end = trimmed.IndexOf('\"', 1);
+                if (end > 1)
+                    trimmed = trimmed[1..end];
+            }
+            else
+            {
+                var end = trimmed.IndexOf(' ');
+                if (end > 0)
+                    trimmed = trimmed[..end];
+            }
+
+            trimmed = System.Environment.ExpandEnvironmentVariables(trimmed);
+            if (System.IO.File.Exists(trimmed))
+                return trimmed;
+            return null;
+        }
     }
 }

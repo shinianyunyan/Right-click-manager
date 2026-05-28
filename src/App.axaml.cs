@@ -1,14 +1,28 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using System.Linq;
 
 namespace RightClickManager;
 
 public partial class App : Application
 {
+    private static Avalonia.Controls.IResourceProvider? _langDictEnUS;
+    private static Avalonia.Controls.IResourceProvider? _langDictZhCN;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+
+        // Capture both language dictionaries preloaded from XAML (AOT-safe).
+        // XAML order: en-US first, zh-CN second.
+        var dicts = Resources.MergedDictionaries.ToList();
+        if (dicts.Count >= 2)
+        {
+            _langDictEnUS = dicts[0];
+            _langDictZhCN = dicts[1];
+        }
+
         ApplyLanguage(ViewModels.ViewModelLocator.Instance.MainWindowViewModel.CurrentLanguage);
     }
 
@@ -31,21 +45,24 @@ public partial class App : Application
             }
         }
 
-        string dictSource = "avares://RightClickManager/Lang/en-US.axaml";
-        if (targetLang.StartsWith("zh", System.StringComparison.OrdinalIgnoreCase))
-        {
-            dictSource = "avares://RightClickManager/Lang/zh-CN.axaml";
-        }
+        bool isChinese = targetLang.StartsWith("zh", System.StringComparison.OrdinalIgnoreCase);
 
         var app = Avalonia.Application.Current;
-        if (app != null)
+        if (app != null && _langDictEnUS != null && _langDictZhCN != null)
         {
             app.Resources.MergedDictionaries.Clear();
-            var newDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new System.Uri("avares://RightClickManager/App.axaml"))
+            if (isChinese)
             {
-                Source = new System.Uri(dictSource)
-            };
-            app.Resources.MergedDictionaries.Add(newDict);
+                // en-US first, zh-CN last (last wins on key conflicts)
+                app.Resources.MergedDictionaries.Add(_langDictEnUS);
+                app.Resources.MergedDictionaries.Add(_langDictZhCN);
+            }
+            else
+            {
+                // zh-CN first, en-US last (last wins on key conflicts)
+                app.Resources.MergedDictionaries.Add(_langDictZhCN);
+                app.Resources.MergedDictionaries.Add(_langDictEnUS);
+            }
         }
     }
 
@@ -157,5 +174,3 @@ public partial class App : Application
         }
     }
 }
-
-
