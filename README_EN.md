@@ -4,6 +4,12 @@
   A lightweight, modern Windows context menu manager. Take back control of your right-click menu.
 </p>
 <p align="center">
+  <img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue.svg" />
+  <img alt="Release" src="https://img.shields.io/github/v/release/shinianyunyan/Right-click-manager" />
+  <img alt=".NET" src="https://img.shields.io/badge/.NET-10.0-512BD4" />
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20x86-0078D6" />
+</p>
+<p align="center">
   <a href="./README.md">中文</a>
 </p>
 
