@@ -179,7 +179,10 @@ namespace RightClickManager.ViewModels
                             clsidDllPaths[ci.Clsid] = ci.DllPath;
 
                 var dict = localBlockedClsids
-                    .DistinctBy(c => c.Clsid)
+                    .GroupBy(c => c.Clsid)
+                    .Select(g => g.OrderByDescending(c => c.Type == PackagedComHelper.BlockedClsidType.CurrentUser ? 1 : 0)
+                                  .ThenByDescending(c => c.IsPending ? 1 : 0)
+                                  .First())
                     .ToDictionary(c => c.Clsid, c => c);
 
                 var allowedList = new List<PackagedAppModel>(localComPackages.Length);

@@ -8,6 +8,7 @@ namespace RightClickManager.Models
     {
         private bool enabled;
         private bool isPending;
+        private bool isSelected;
 
         public SystemShellItem(
             string registryPath,
@@ -42,6 +43,12 @@ namespace RightClickManager.Models
             set => SetProperty(ref isPending, value);
         }
 
+        public bool IsSelected
+        {
+            get => isSelected;
+            set => SetProperty(ref isSelected, value, notifyWhenNotChanged: true);
+        }
+
         public bool Enabled
         {
             get => enabled;
@@ -69,10 +76,13 @@ namespace RightClickManager.Models
                         IsPending = false;
                         return true;
                     },
+                    onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);
             }
         }
+
+        public string StatusColor => enabled ? "#4CAF50" : "#F44336";
 
         private string? _filePath;
         private bool _filePathResolved;
@@ -105,11 +115,7 @@ namespace RightClickManager.Models
         {
             var path = FilePath;
             if (!string.IsNullOrEmpty(path))
-            {
-                var dir = System.IO.Path.GetDirectoryName(path);
-                if (!string.IsNullOrEmpty(dir))
-                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
-            }
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
         });
     }
 }

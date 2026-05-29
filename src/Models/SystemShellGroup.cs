@@ -1,5 +1,8 @@
 using RightClickManager.Base;
+using RightClickManager.Helpers;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace RightClickManager.Models
@@ -7,6 +10,8 @@ namespace RightClickManager.Models
     public partial class SystemShellGroup : ObservableObject
     {
         private bool _isItemsExpanded;
+        private bool _isUpdatingSelection;
+        private bool? _selectAllState;
 
         public SystemShellGroup(string category, IReadOnlyList<SystemShellItem> items)
         {
@@ -23,6 +28,10 @@ namespace RightClickManager.Models
                 _ => category
             };
             Items = items;
+
+            foreach (var item in Items)
+                item.PropertyChanged += OnChildItemPropertyChanged;
+            RecalculateSelectAllState();
         }
 
         public string Category { get; }
@@ -46,16 +55,69 @@ namespace RightClickManager.Models
             OnPropertyChanged(nameof(VisibleItems));
         });
 
-        public RelayCommand EnableAllCommand => new RelayCommand(() =>
+        public bool? SelectAllState
         {
+            get => _selectAllState;
+            private set => SetProperty(ref _selectAllState, value);
+        }
+
+        public RelayCommand SelectAllCommand => new RelayCommand(() =>
+        {
+            _isUpdatingSelection = true;
+            bool newState = _selectAllState != true;
             foreach (var item in Items)
-                if (item.CanModify) item.Enabled = true;
+                if (item.CanModify) item.IsSelected = newState;
+            _isUpdatingSelection = false;
+            RecalculateSelectAllState();
         });
 
-        public RelayCommand DisableAllCommand => new RelayCommand(() =>
+        public RelayCommand EnableSelectedCommand => new RelayCommand(() =>
         {
             foreach (var item in Items)
-                if (item.CanModify) item.Enabled = false;
+                if (item.IsSelected && item.CanModify) item.Enabled = true;
         });
+
+        public RelayCommand DisableSelectedCommand => new RelayCommand(() =>
+        {
+            foreach (var item in Items)
+                if (item.IsSelected && item.CanModify) item.Enabled = false;
+        });
+
+        public RelayCommand DeleteSelectedCommand => new RelayCommand(() =>
+        {
+            foreach (var item in Items)
+            {
+                if (item.IsSelected && item.CanModify)
+                {
+                    if (item.IsVerb)
+                        ShellMenuScanner.UnblockVerb(item.RegistryPath);
+                    else if (item.HandlerClsid is not null && Guid.TryParse(item.HandlerClsid, out var clsid))
+                        PackagedComHelper.SetBlockedClsid(clsid, PackagedComHelper.BlockedClsidType.CurrentUser, blocked: false);
+                    item.Enabled = true;
+                }
+            }
+        });
+
+        private void RecalculateSelectAllState()
+        {
+            if (_isUpdatingSelection) return;
+            if (Items.Count == 0) { SelectAllState = false; return; }
+            bool hasSelected = false, hasUnselected = false;
+            foreach (var item in Items)
+            {
+                if (!item.CanModify) continue;
+                if (item.IsSelected) hasSelected = true;
+                else hasUnselected = true;
+            }
+            if (hasSelected && hasUnselected) SelectAllState = null;
+            else if (hasSelected) SelectAllState = true;
+            else SelectAllState = false;
+        }
+
+        private void OnChildItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SystemShellItem.IsSelected))
+                RecalculateSelectAllState();
+        }
     }
 }
