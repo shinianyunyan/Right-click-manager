@@ -5,7 +5,6 @@
 		xmlns:models="using:RightClickManager.Models"
 		xmlns:vm="using:RightClickManager.ViewModels"
 		xmlns:ui="using:FluentAvalonia.UI.Controls"
-		xmlns:lottie="clr-namespace:Avalonia.Skia.Lottie;assembly=Avalonia.Skia.Lottie"
         x:Class="RightClickManager.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		TransparencyLevelHint="AcrylicBlur"
@@ -66,7 +65,7 @@
 					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
@@ -122,7 +121,7 @@
 					<!-- System section -->
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
@@ -183,7 +182,7 @@
 					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
@@ -239,7 +238,7 @@
 					<!-- System section -->
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
@@ -300,7 +299,7 @@
 					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
@@ -356,7 +355,7 @@
 					<!-- System section -->
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<Grid MinHeight="48">
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48"
+						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
 									 HorizontalAlignment="Center" VerticalAlignment="Center"
 									 IsVisible="{Binding SearchCommand.IsRunning}" />
 						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
