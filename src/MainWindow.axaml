@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:models="using:RightClickManager.Models"
 		xmlns:vm="using:RightClickManager.ViewModels"
+		xmlns:ui="using:FluentAvalonia.UI.Controls"
         x:Class="RightClickManager.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		TransparencyLevelHint="AcrylicBlur"
@@ -63,6 +64,7 @@
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding Apps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -113,6 +115,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding SystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -168,6 +171,7 @@
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding BlockedApps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -218,6 +222,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding BlockedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -273,6 +278,7 @@
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding InterceptedApps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -323,6 +329,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
+						<ui:ProgressRing IsIndeterminate="True" Width="32" Height="32" HorizontalAlignment="Center" Margin="12" IsVisible="{Binding SearchCommand.IsRunning}" />
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding InterceptedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
