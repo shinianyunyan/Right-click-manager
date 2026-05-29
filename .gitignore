@@ -45,3 +45,6 @@ BenchmarkDotNet.Artifacts/
 # Mac / Windows system files
 .DS_Store
 Thumbs.db
+
+# Claude Code
+.claude/
