@@ -48,19 +48,24 @@ namespace RightClickManager.Models
 
         public string DisplayName { get; }
 
+        private Bitmap? _icon;
+        private bool _iconResolved;
+
         public Bitmap? Icon
         {
             get
             {
-                if (!string.IsNullOrEmpty(AppInfo.IconPath))
+                if (!_iconResolved)
                 {
-                    var iconPath = System.IO.Path.Combine(PackageInfo.PackageInstallLocation, AppInfo.IconPath);
-                    if (System.IO.File.Exists(iconPath))
+                    _iconResolved = true;
+                    if (!string.IsNullOrEmpty(AppInfo.IconPath))
                     {
-                        return new Bitmap(iconPath);
+                        var iconPath = System.IO.Path.Combine(PackageInfo.PackageInstallLocation, AppInfo.IconPath);
+                        if (System.IO.File.Exists(iconPath))
+                            _icon = new Bitmap(iconPath);
                     }
                 }
-                return null;
+                return _icon;
             }
         }
 

@@ -37,27 +37,31 @@ namespace RightClickManager.Models
             }
         }
 
+        private string? _displayName;
+
         public string DisplayName
         {
             get
             {
-                var title = ContextMenuItem.Title ?? PackagedComHelper.TryGetExplorerCommandTitle(ContextMenuItem.Clsid, ContextMenuItem.Type);
-                if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(ContextMenuItem.Id)) title = $"[{ContextMenuItem.Id}]";
+                if (_displayName != null) return _displayName;
+
+                var title = ContextMenuItem.Title;
+                // TryGetExplorerCommandTitle 会 CoCreateInstance，只在第一次调用，结果缓存
+                if (string.IsNullOrEmpty(title))
+                    title = PackagedComHelper.TryGetExplorerCommandTitle(ContextMenuItem.Clsid, ContextMenuItem.Type);
+                if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(ContextMenuItem.Id))
+                    title = $"[{ContextMenuItem.Id}]";
 
                 if (!string.IsNullOrEmpty(ContextMenuItem.Type) && !string.IsNullOrEmpty(title))
-                {
-                    return $"[{ContextMenuItem.Type}] {title}\n{ContextMenuItem.Clsid:B}";
-                }
+                    _displayName = $"[{ContextMenuItem.Type}] {title}\n{ContextMenuItem.Clsid:B}";
                 else if (!string.IsNullOrEmpty(ContextMenuItem.Type))
-                {
-                    return $"[{ContextMenuItem.Type}]\n{ContextMenuItem.Clsid:B}";
-                }
+                    _displayName = $"[{ContextMenuItem.Type}]\n{ContextMenuItem.Clsid:B}";
                 else if (!string.IsNullOrEmpty(title))
-                {
-                    return $"{title}\n{ContextMenuItem.Clsid:B}";
-                }
+                    _displayName = $"{title}\n{ContextMenuItem.Clsid:B}";
+                else
+                    _displayName = $"{ContextMenuItem.Clsid:B}";
 
-                return $"{ContextMenuItem.Clsid:B}";
+                return _displayName;
             }
         }
 

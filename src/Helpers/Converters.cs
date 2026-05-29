@@ -41,7 +41,8 @@ namespace RightClickManager.Helpers
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is null) return true;
+            // null 表示"尚未加载"，不应显示"暂无内容"；只有已加载但为空才显示
+            if (value is null) return false;
             if (value is System.Collections.ICollection col && col.Count == 0) return true;
             return false;
         }

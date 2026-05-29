@@ -58,14 +58,15 @@
 			</Button>
 		</Grid>
 
-		<TabControl Grid.Row="2" Margin="16,0,16,12">
+		<Grid Grid.Row="2">
+			<TabControl Margin="16,0,16,12">
 			<!-- ════ Allowed Tab ════ -->
 			<TabItem Header="{DynamicResource LangText_TabAllowed}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding Apps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -116,7 +117,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding SystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -172,7 +173,7 @@
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding BlockedApps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -223,7 +224,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding BlockedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -279,7 +280,7 @@
 					<StackPanel>
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding InterceptedApps, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -330,7 +331,7 @@
 					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
 					<StackPanel>
-						<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json" Width="48" Height="48" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding SearchCommand.IsRunning}" />
+						<!-- loading indicator 已移至 TabControl 外层浮动覆盖 -->
 						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
 								IsVisible="{Binding InterceptedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
 							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
@@ -380,5 +381,12 @@
 				</ScrollViewer>
 			</TabItem>
 			</TabControl>
+			<!-- ══ 单个共享 Lottie，浮动覆盖在所有 Tab 之上，仅加载时可见 ══ -->
+			<lottie:Lottie Path="avares://RightClickManager/Assets/loading.json"
+						   Width="64" Height="64"
+						   HorizontalAlignment="Center" VerticalAlignment="Center"
+						   IsVisible="{Binding SearchCommand.IsRunning}"
+						   IsHitTestVisible="False" />
+		</Grid>
 	</Grid>
 </Window>
