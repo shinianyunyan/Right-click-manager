@@ -162,6 +162,8 @@ namespace RightClickManager.ViewModels
 
             try
             {
+            // 注意：Task.Run 内部不能直接 async/await GetPackageAppInfoAsync（否则 Task.Run 返回 Task<Task>）
+            // 改为先在后台线程同步完成所有 IO，避免 continuation 调度混乱
             var result = await Task.Run(async () =>
             {
                 Helpers.Logger.Info("Task.Run begin: scanning registry");
@@ -193,7 +195,7 @@ namespace RightClickManager.ViewModels
                         var packageInfo = PackageManager.GetPackageInfoByFullName(localComPackages[i].PackageFullName);
                         if (packageInfo != null)
                         {
-                            var appInfo = await PackageManager.GetPackageAppInfoAsync(packageInfo);
+                            var appInfo = await PackageManager.GetPackageAppInfoAsync(packageInfo).ConfigureAwait(false);
                             if (appInfo != null && appInfo.ContextMenuItems.Count > 0)
                             {
                                 var matchingItems = appInfo.ContextMenuItems.AsEnumerable();
@@ -294,11 +296,9 @@ namespace RightClickManager.ViewModels
                                     continue;
                             }
 
-                            var verbDisplay = ShellMenuScanner.ResolveVerbDisplayName(verbPath);
+                            // 一次句柄同时读取状态+名称，避免三次重复注册表 IO
+                            var (verbBlocked, verbPending, verbDisplay) = ShellMenuScanner.GetVerbInfo(verbPath);
                             var fullDisplay = $"[{root.Split('\\')[0]}] {verbDisplay}";
-
-                            bool verbBlocked = ShellMenuScanner.IsVerbBlocked(verbPath);
-                            bool verbPending = verbBlocked && ShellMenuScanner.IsVerbPending(verbPath);
 
                             var item = new Models.SystemShellItem(
                                 verbPath, fullDisplay, root, isVerb: true,

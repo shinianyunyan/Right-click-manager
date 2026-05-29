@@ -160,6 +160,45 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
+        /// <summary>
+        /// 一次注册表句柄同时读取 blocked/pending 状态和显示名称，
+        /// 避免热路径中对同一个 key 三次重复 IO。
+        /// </summary>
+        public static (bool isBlocked, bool isPending, string displayName) GetVerbInfo(string verbRegistryPath)
+        {
+            bool isBlocked = false;
+            bool isPending = false;
+            string displayName = verbRegistryPath[(verbRegistryPath.LastIndexOf('\\') + 1)..];
+
+            try
+            {
+                using var key = Registry.ClassesRoot.OpenSubKey(verbRegistryPath, false);
+                if (key != null)
+                {
+                    if (key.GetValue("HideBasedOnVelocityId") is int vid && vid == HideBasedOnVelocityIdDisabled)
+                        isBlocked = true;
+                    else if (key.GetValue("LegacyDisable") != null || key.GetValue("ProgrammaticAccessOnly") != null)
+                        isBlocked = true;
+
+                    if (isBlocked && key.GetValue(PendingMarker) is int v && v == 1)
+                        isPending = true;
+
+                    var muiverb = key.GetValue("MUIVerb") as string;
+                    if (!string.IsNullOrEmpty(muiverb))
+                        displayName = ResolveIndirectString(muiverb);
+                    else
+                    {
+                        var defaultVal = key.GetValue("") as string;
+                        if (!string.IsNullOrEmpty(defaultVal))
+                            displayName = ResolveIndirectString(defaultVal);
+                    }
+                }
+            }
+            catch { }
+
+            return (isBlocked, isPending, displayName);
+        }
+
         public static string ResolveVerbDisplayName(string verbRegistryPath)
         {
             try
