@@ -85,7 +85,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -135,7 +134,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -196,7 +194,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -246,7 +243,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -307,7 +303,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -357,7 +352,6 @@
 <CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
 									<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
 									<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
-									<Button Content="{DynamicResource LangText_DeleteSelected}" Command="{Binding DeleteSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>

@@ -83,21 +83,6 @@ namespace RightClickManager.Models
                 if (item.IsSelected && item.CanModify) item.Enabled = false;
         });
 
-        public RelayCommand DeleteSelectedCommand => new RelayCommand(() =>
-        {
-            foreach (var item in Items)
-            {
-                if (item.IsSelected && item.CanModify)
-                {
-                    if (item.IsVerb)
-                        ShellMenuScanner.UnblockVerb(item.RegistryPath);
-                    else if (item.HandlerClsid is not null && Guid.TryParse(item.HandlerClsid, out var clsid))
-                        PackagedComHelper.SetBlockedClsid(clsid, PackagedComHelper.BlockedClsidType.CurrentUser, blocked: false);
-                    item.Enabled = true;
-                }
-            }
-        });
-
         private void RecalculateSelectAllState()
         {
             if (_isUpdatingSelection) return;

@@ -121,21 +121,6 @@ namespace RightClickManager.Models
                 if (item.IsSelected && item.CanModify) item.Enabled = false;
         });
 
-        public Base.RelayCommand DeleteSelectedCommand => new Base.RelayCommand(() =>
-        {
-            foreach (var item in ContextMenuItems)
-            {
-                if (item.IsSelected && item.CanModify)
-                {
-                    PackagedComHelper.SetBlockedClsid(
-                        item.ContextMenuItem.Clsid,
-                        PackagedComHelper.BlockedClsidType.CurrentUser,
-                        blocked: false);
-                    item.Enabled = true;
-                }
-            }
-        });
-
         private void RecalculateSelectAllState()
         {
             if (_isUpdatingSelection) return;
