@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:models="using:RightClickManager.Models"
 		xmlns:vm="using:RightClickManager.ViewModels"
-		xmlns:ui="using:FluentAvalonia.UI.Controls"
+		xmlns:lottie="clr-namespace:Avalonia.Skia.Lottie;assembly=Avalonia.Skia.Lottie"
         x:Class="RightClickManager.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
 		TransparencyLevelHint="AcrylicBlur"
@@ -56,121 +56,124 @@
 				</Grid>
 			</Button>
 		</Grid>
-		<TabControl Grid.Row="2" Margin="16,0,16,12">
 
+		<!-- Tab content + loading overlay -->
+		<Grid Grid.Row="2" Margin="16,0,16,12">
+			<!-- Loading overlay: 2 Lottie animations matching app/system section positions -->
+			<Grid IsVisible="{Binding SearchCommand.IsRunning}" ZIndex="10"
+				  RowDefinitions="Auto,*,Auto,*">
+				<lottie:Lottie Grid.Row="1"
+						Path="avares://RightClickManager/Assets/loading.json"
+						Width="48" Height="48"
+						HorizontalAlignment="Center" VerticalAlignment="Center" />
+				<lottie:Lottie Grid.Row="3"
+						Path="avares://RightClickManager/Assets/loading.json"
+						Width="48" Height="48"
+						HorizontalAlignment="Center" VerticalAlignment="Center" />
+			</Grid>
+
+			<TabControl>
 			<!-- ════ Allowed Tab ════ -->
 			<TabItem Header="{DynamicResource LangText_TabAllowed}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
-					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding Apps, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding Apps}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:PackagedAppModel">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
-													<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
-														<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
-													</Border>
-													<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding Apps, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding Apps}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:PackagedAppModel">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+												<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+													<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+												</Border>
+												<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="70,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="70,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
-					<!-- System section -->
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding SystemItems, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding SystemItems}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:SystemShellGroup">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
-													<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding SystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding SystemItems}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:SystemShellGroup">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
+												<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:SystemShellItem">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="50,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:SystemShellItem">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="50,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
@@ -179,115 +182,103 @@
 			<TabItem Header="{DynamicResource LangText_TabDisabled}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
-					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding BlockedApps, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding BlockedApps}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:PackagedAppModel">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
-													<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
-														<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
-													</Border>
-													<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding BlockedApps, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding BlockedApps}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:PackagedAppModel">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+												<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+													<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+												</Border>
+												<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="70,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="70,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
-					<!-- System section -->
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding BlockedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding BlockedSystemItems}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:SystemShellGroup">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
-													<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding BlockedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding BlockedSystemItems}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:SystemShellGroup">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
+												<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:SystemShellItem">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="50,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:SystemShellItem">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="50,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
@@ -296,118 +287,107 @@
 			<TabItem Header="{DynamicResource LangText_TabPending}">
 				<ScrollViewer Focusable="True" FocusAdorner="{x:Null}">
 					<StackPanel>
-					<!-- App section -->
 					<TextBlock Text="{DynamicResource LangText_AppItems}" FontSize="13" FontWeight="SemiBold" Margin="8,8,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding InterceptedApps, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding InterceptedApps}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:PackagedAppModel">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
-													<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
-														<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
-													</Border>
-													<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding InterceptedApps, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding InterceptedApps}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:PackagedAppModel">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="60">
+												<Border ClipToBounds="True" Width="32" Height="32" Margin="0,0,12,0" CornerRadius="4" Background="{DynamicResource AppListIconBackgroundBrush}" VerticalAlignment="Center">
+													<Image Source="{Binding Icon}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" />
+												</Border>
+												<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="70,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="70,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
-					<!-- System section -->
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					<TextBlock Text="{DynamicResource LangText_SystemItems}" FontSize="13" FontWeight="SemiBold" Margin="8,16,8,4" />
-					<Grid MinHeight="48">
-						<TextBlock Text="加载中..." FontSize="14" Foreground="Gray"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 IsVisible="{Binding SearchCommand.IsRunning}" />
-						<StackPanel IsVisible="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}">
-							<Border Background="#10000000" CornerRadius="4" Padding="24,20"
-									IsVisible="{Binding InterceptedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
-								<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
-							</Border>
-							<ItemsControl ItemsSource="{Binding InterceptedSystemItems}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate x:DataType="models:SystemShellGroup">
-										<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
-											<Expander.Header>
-												<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
-													<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
-													<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-														<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-														<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
-													</StackPanel>
+					<StackPanel>
+						<Border Background="#10000000" CornerRadius="4" Padding="24,20"
+								IsVisible="{Binding InterceptedSystemItems, Converter={StaticResource CollectionEmptyConverter}}">
+							<TextBlock Text="{DynamicResource LangText_NoData}" Foreground="Gray" HorizontalAlignment="Center" />
+						</Border>
+						<ItemsControl ItemsSource="{Binding InterceptedSystemItems}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="models:SystemShellGroup">
+									<Expander HorizontalAlignment="Stretch" IsExpanded="True" Margin="0,4" Padding="0" CornerRadius="4">
+										<Expander.Header>
+											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
+												<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
+												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
+													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
+													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+												</StackPanel>
+											</Grid>
+										</Expander.Header>
+										<StackPanel>
+											<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
+												<ItemsControl.ItemTemplate>
+													<DataTemplate x:DataType="models:SystemShellItem">
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
+															<CheckBox.ContextMenu>
+																<ContextMenu>
+																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
+																</ContextMenu>
+															</CheckBox.ContextMenu>
+															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+														</CheckBox>
+													</DataTemplate>
+												</ItemsControl.ItemTemplate>
+											</ItemsControl>
+											<Button HorizontalAlignment="Left" Margin="50,0,12,8"
+													Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
+												<Grid>
+													<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
+													<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
 												</Grid>
-											</Expander.Header>
-											<StackPanel>
-												<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
-													<ItemsControl.ItemTemplate>
-														<DataTemplate x:DataType="models:SystemShellItem">
-															<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-																<CheckBox.ContextMenu>
-																	<ContextMenu>
-																		<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																	</ContextMenu>
-																</CheckBox.ContextMenu>
-																<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
-															</CheckBox>
-														</DataTemplate>
-													</ItemsControl.ItemTemplate>
-												</ItemsControl>
-												<Button HorizontalAlignment="Left" Margin="50,0,12,8"
-														Command="{Binding ToggleItemsExpandCommand}" IsVisible="{Binding HasMoreItems}">
-													<Grid>
-														<TextBlock Text="{DynamicResource LangText_ShowMore}" IsVisible="{Binding IsItemsExpanded, Converter={StaticResource NotConverter}}" />
-														<TextBlock Text="{DynamicResource LangText_ShowLess}" IsVisible="{Binding IsItemsExpanded}" />
-													</Grid>
-												</Button>
-											</StackPanel>
-										</Expander>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</Grid>
+											</Button>
+										</StackPanel>
+									</Expander>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
 					</StackPanel>
 				</ScrollViewer>
 			</TabItem>
-		</TabControl>
+			</TabControl>
+		</Grid>
 	</Grid>
 </Window>
