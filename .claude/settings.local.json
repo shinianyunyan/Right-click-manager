@@ -23,7 +23,11 @@
       "Bash(python3 -c ' *)",
       "Bash(awk '{sub\\(/^\\\\tt\\\\t/, \"\\\\t\\\\t\\\\t\\\\t\\\\t\"\\); print}' src/MainWindow.axaml)",
       "Bash(mv src/MainWindow.axaml.tmp src/MainWindow.axaml)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "WebSearch",
+      "Bash(dotnet add *)",
+      "Bash(dotnet remove *)",
+      "Bash(dotnet run *)"
     ]
   }
 }
