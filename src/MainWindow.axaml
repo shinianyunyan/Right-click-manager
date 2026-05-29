@@ -19,6 +19,7 @@
 	<Grid x:Name="LayoutRoot" IsEnabled="{Binding SearchCommand.IsRunning, Converter={StaticResource NotConverter}}"
 		  RowDefinitions="40, Auto, *">
 		<StackPanel Orientation="Horizontal" Margin="17,0" VerticalAlignment="Center">
+			<Image Source="avares://RightClickManager/icon.ico" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center" />
 			<TextBlock FontSize="12" Text="{DynamicResource LangText_AppTitle}" VerticalAlignment="Center" IsHitTestVisible="False" />
 			<Menu Background="Transparent" Margin="8,0,0,0" Padding="0">
 				<MenuItem Header="{DynamicResource LangText_Settings}" FontSize="12" Padding="4,2">
