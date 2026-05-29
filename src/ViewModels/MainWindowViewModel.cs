@@ -152,6 +152,14 @@ namespace RightClickManager.ViewModels
             _searchCts = new CancellationTokenSource();
             var token = _searchCts.Token;
 
+            // Clear all lists immediately so UI shows empty placeholders
+            Apps = null;
+            BlockedApps = null;
+            InterceptedApps = null;
+            SystemItems = null;
+            BlockedSystemItems = null;
+            InterceptedSystemItems = null;
+
             try
             {
             var result = await Task.Run(async () =>
