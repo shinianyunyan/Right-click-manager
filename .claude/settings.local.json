@@ -27,7 +27,14 @@
       "WebSearch",
       "Bash(dotnet add *)",
       "Bash(dotnet remove *)",
-      "Bash(dotnet run *)"
+      "Bash(dotnet run *)",
+      "Bash(git revert *)",
+      "Bash(dotnet tool *)",
+      "Read(//c/Users/xia/Downloads/**)",
+      "Bash(npx --yes svg-to-ico)",
+      "Bash(which npx *)",
+      "Bash(node -e \"console.log\\('node ok'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }
