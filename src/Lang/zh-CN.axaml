@@ -22,8 +22,6 @@
     <system:String x:Key="LangText_TabPending">拦截待审核</system:String>
     <system:String x:Key="LangText_EnableAll">全部启用</system:String>
     <system:String x:Key="LangText_DisableAll">全部禁用</system:String>
-	<system:String x:Key="LangText_EnableSelected">启用所选</system:String>
-	<system:String x:Key="LangText_DisableSelected">禁用所选</system:String>
     <system:String x:Key="LangText_InterceptedTitle">拦截提醒</system:String>
     <system:String x:Key="LangText_InterceptedMsg">检测到新添加的右键菜单。已自动拦截，请前往主界面审核。</system:String>
     <system:String x:Key="LangText_InterceptedVerbMsg">检测到新的 Shell 动词菜单项并已自动拦截。</system:String>

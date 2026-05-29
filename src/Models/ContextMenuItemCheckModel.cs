@@ -7,7 +7,6 @@ namespace RightClickManager.Models
     public partial class ContextMenuItemCheckModel : ObservableObject
     {
         private bool enabled;
-        private bool isSelected;
 
         public ContextMenuItemCheckModel(ContextMenuItem contextMenuItem, bool enabled, bool canModify, bool isPending = false, string? knownDllPath = null)
         {
@@ -25,12 +24,6 @@ namespace RightClickManager.Models
         public bool IsPending { get => isPending; set => SetProperty(ref isPending, value); }
         private bool isPending;
 
-        public bool IsSelected
-        {
-            get => isSelected;
-            set => SetProperty(ref isSelected, value, notifyWhenNotChanged: true);
-        }
-
         public bool Enabled
         {
             get => enabled;
@@ -39,13 +32,10 @@ namespace RightClickManager.Models
                 SetProperty(ref enabled, value,
                     onPropertyChanging: (oldValue, newValue) =>
                         PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false),
-                    onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);
             }
         }
-
-        public string StatusColor => enabled ? "#4CAF50" : "#F44336";
 
         private string? _displayName;
 
@@ -56,6 +46,7 @@ namespace RightClickManager.Models
                 if (_displayName != null) return _displayName;
 
                 var title = ContextMenuItem.Title;
+                // TryGetExplorerCommandTitle 会 CoCreateInstance，只在第一次调用，结果缓存
                 if (string.IsNullOrEmpty(title))
                     title = PackagedComHelper.TryGetExplorerCommandTitle(ContextMenuItem.Clsid, ContextMenuItem.Type);
                 if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(ContextMenuItem.Id))
@@ -84,12 +75,14 @@ namespace RightClickManager.Models
             {
                 if (!_filePathResolved)
                 {
+                    // Prefer the known DLL path from PackagedCom data
                     if (!string.IsNullOrEmpty(_knownDllPath))
                     {
                         var expanded = System.Environment.ExpandEnvironmentVariables(_knownDllPath!);
                         if (System.IO.File.Exists(expanded))
                             _filePath = expanded;
                     }
+                    // Fall back to registry CLSID lookup
                     _filePath ??= ShellMenuScanner.ResolveClsidFilePath(ContextMenuItem.Clsid);
                     _filePathResolved = true;
                 }

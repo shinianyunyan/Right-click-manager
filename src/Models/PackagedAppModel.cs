@@ -2,7 +2,6 @@ using Avalonia.Media.Imaging;
 using RightClickManager.Helpers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace RightClickManager.Models
@@ -10,8 +9,6 @@ namespace RightClickManager.Models
     public partial class PackagedAppModel : Base.ObservableObject
     {
         private bool _isItemsExpanded;
-        private bool _isUpdatingSelection;
-        private bool? _selectAllState;
 
         public PackagedAppModel(
             AppInfo appInfo,
@@ -32,10 +29,6 @@ namespace RightClickManager.Models
                 }
                 return new ContextMenuItemCheckModel(c, true, true, false, dllPath);
             }).ToArray();
-
-            foreach (var item in ContextMenuItems)
-                item.PropertyChanged += OnChildItemPropertyChanged;
-            RecalculateSelectAllState();
 
             if (string.IsNullOrEmpty(AppInfo.DisplayName))
             {
@@ -93,54 +86,20 @@ namespace RightClickManager.Models
             OnPropertyChanged(nameof(VisibleContextMenuItems));
         });
 
-        public bool? SelectAllState
+        public Base.RelayCommand EnableAllCommand => new Base.RelayCommand(() =>
         {
-            get => _selectAllState;
-            private set => SetProperty(ref _selectAllState, value);
-        }
-
-        public Base.RelayCommand SelectAllCommand => new Base.RelayCommand(() =>
-        {
-            _isUpdatingSelection = true;
-            bool newState = _selectAllState != true;
-            foreach (var item in ContextMenuItems)
-                if (item.CanModify) item.IsSelected = newState;
-            _isUpdatingSelection = false;
-            RecalculateSelectAllState();
-        });
-
-        public Base.RelayCommand EnableSelectedCommand => new Base.RelayCommand(() =>
-        {
-            foreach (var item in ContextMenuItems)
-                if (item.IsSelected && item.CanModify) item.Enabled = true;
-        });
-
-        public Base.RelayCommand DisableSelectedCommand => new Base.RelayCommand(() =>
-        {
-            foreach (var item in ContextMenuItems)
-                if (item.IsSelected && item.CanModify) item.Enabled = false;
-        });
-
-        private void RecalculateSelectAllState()
-        {
-            if (_isUpdatingSelection) return;
-            if (ContextMenuItems.Count == 0) { SelectAllState = false; return; }
-            bool hasSelected = false, hasUnselected = false;
             foreach (var item in ContextMenuItems)
             {
-                if (!item.CanModify) continue;
-                if (item.IsSelected) hasSelected = true;
-                else hasUnselected = true;
+                if (item.CanModify) item.Enabled = true;
             }
-            if (hasSelected && hasUnselected) SelectAllState = null;
-            else if (hasSelected) SelectAllState = true;
-            else SelectAllState = false;
-        }
+        });
 
-        private void OnChildItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        public Base.RelayCommand DisableAllCommand => new Base.RelayCommand(() =>
         {
-            if (e.PropertyName == nameof(ContextMenuItemCheckModel.IsSelected))
-                RecalculateSelectAllState();
-        }
+            foreach (var item in ContextMenuItems)
+            {
+                if (item.CanModify) item.Enabled = false;
+            }
+        });
     }
 }
