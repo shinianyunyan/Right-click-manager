@@ -44,6 +44,7 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        Helpers.Logger.Info("MainWindow loaded, starting initial search");
         await VM.SearchCommand.ExecuteAsync("");
     }
 

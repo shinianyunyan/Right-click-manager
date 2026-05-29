@@ -192,8 +192,13 @@ namespace RightClickManager.Base
         public Task ExecuteAsync(T? parameter)
         {
             var _task = task;
-            if (_task != null && !_task.IsCompleted) return _task;
+            if (_task != null && !_task.IsCompleted)
+            {
+                Helpers.Logger.Info("Search already running, reusing existing task");
+                return _task;
+            }
 
+            Helpers.Logger.Info("Search started");
             return RunAsync();
 
             async Task RunAsync()
@@ -203,7 +208,12 @@ namespace RightClickManager.Base
                 try
                 {
                     await _task;
+                    Helpers.Logger.Info("Search completed");
                     RaiseCanExecuteChanged();
+                }
+                catch (System.Exception ex)
+                {
+                    Helpers.Logger.Error("Search crashed", ex.ToString());
                 }
                 finally
                 {

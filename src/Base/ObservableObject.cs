@@ -33,18 +33,27 @@ namespace RightClickManager.Base
 
             async void Notify(bool _async, string? _propertyName)
             {
-                var handler = PropertyChanged;
-                if (handler != null)
+                try
                 {
                     if (_async)
                     {
+                        Helpers.Logger.Info($"Notify async begin: {_propertyName}");
                         Dispatcher.UIThread.VerifyAccess();
-                        await Dispatcher.UIThread.InvokeAsync(() => OnPropertyChanged(_propertyName), DispatcherPriority.Loaded);
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            Helpers.Logger.Info($"Notify async firing: {_propertyName}");
+                            OnPropertyChanged(_propertyName);
+                        }, DispatcherPriority.Loaded);
+                        Helpers.Logger.Info($"Notify async end: {_propertyName}");
                     }
                     else
                     {
                         OnPropertyChanged(_propertyName);
                     }
+                }
+                catch (System.Exception ex)
+                {
+                    Helpers.Logger.Error($"Notify crash: {_propertyName}", ex.ToString());
                 }
             }
         }

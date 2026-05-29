@@ -145,9 +145,11 @@ namespace RightClickManager.ViewModels
         public AsyncRelayCommand<string> SearchCommand => searchCommand ??= new AsyncRelayCommand<string>(async search =>
         {
             search = search?.Trim();
+            Helpers.Logger.Info($"SearchCommand lambda enter, search='{search ?? "(null)"}'");
 
             Apps = await Task.Run(async () =>
             {
+                Helpers.Logger.Info("Task.Run begin: scanning registry");
                 comPackages = PackagedComHelper.GetAllComPackages();
                 blockedClsids = PackagedComHelper.GetBlockedClsids();
 
@@ -214,8 +216,10 @@ namespace RightClickManager.ViewModels
 
                 Dispatcher.UIThread.Post(() =>
                 {
+                    Helpers.Logger.Info("Dispatcher.Post: setting Apps/Blocked/Intercepted");
                     BlockedApps = blockedList;
                     InterceptedApps = interceptedList;
+                    Helpers.Logger.Info("Dispatcher.Post: Apps/Blocked/Intercepted done");
                 });
 
                 // --- System-level item enumeration (non-PackagedCom extensions + shell verbs) ---
@@ -313,11 +317,14 @@ namespace RightClickManager.ViewModels
 
                 Dispatcher.UIThread.Post(() =>
                 {
+                    Helpers.Logger.Info("Dispatcher.Post: setting SystemItems");
                     SystemItems = GroupByCategory(sysAllowed);
                     BlockedSystemItems = GroupByCategory(sysBlocked);
                     InterceptedSystemItems = GroupByCategory(sysIntercepted);
+                    Helpers.Logger.Info("Dispatcher.Post: SystemItems done");
                 });
 
+                Helpers.Logger.Info("Task.Run returning list");
                 return list;
 
                 static bool GuidContains(Guid guid, string text) =>

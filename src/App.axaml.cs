@@ -70,6 +70,7 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        Helpers.Logger.Info("OnFrameworkInitializationCompleted begin");
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnExplicitShutdown;
