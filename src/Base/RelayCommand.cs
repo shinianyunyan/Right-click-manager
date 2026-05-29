@@ -143,8 +143,15 @@ namespace RightClickManager.Base
 
         public void RaiseCanExecuteChanged()
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRunning)));
+            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRunning)));
+            }
+            else
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => RaiseCanExecuteChanged());
+            }
         }
     }
 
@@ -224,8 +231,15 @@ namespace RightClickManager.Base
 
         public void RaiseCanExecuteChanged()
         {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRunning)));
+            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRunning)));
+            }
+            else
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => RaiseCanExecuteChanged());
+            }
         }
     }
 }

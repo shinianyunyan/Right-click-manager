@@ -14,9 +14,6 @@ namespace RightClickManager.ViewModels
 {
     public class MainWindowViewModel : ObservableObject
     {
-        private ComPackage[]? comPackages;
-        private BlockedClsid[]? blockedClsids;
-
         private IReadOnlyList<PackagedAppModel>? apps;
         private IReadOnlyList<PackagedAppModel>? blockedApps;
         private IReadOnlyList<PackagedAppModel>? interceptedApps;
@@ -147,31 +144,31 @@ namespace RightClickManager.ViewModels
             search = search?.Trim();
             Helpers.Logger.Info($"SearchCommand lambda enter, search='{search ?? "(null)"}'");
 
-            Apps = await Task.Run(async () =>
+            var result = await Task.Run(async () =>
             {
                 Helpers.Logger.Info("Task.Run begin: scanning registry");
-                comPackages = PackagedComHelper.GetAllComPackages();
-                blockedClsids = PackagedComHelper.GetBlockedClsids();
+                var localComPackages = PackagedComHelper.GetAllComPackages();
+                var localBlockedClsids = PackagedComHelper.GetBlockedClsids();
 
                 var clsidDllPaths = new Dictionary<Guid, string>();
-                foreach (var pkg in comPackages)
+                foreach (var pkg in localComPackages)
                     foreach (var ci in pkg.Clsids)
                         if (!string.IsNullOrEmpty(ci.DllPath))
                             clsidDllPaths[ci.Clsid] = ci.DllPath;
 
-                var dict = blockedClsids
+                var dict = localBlockedClsids
                     .DistinctBy(c => c.Clsid)
                     .ToDictionary(c => c.Clsid, c => c);
 
-                var list = new List<PackagedAppModel>(comPackages.Length);
+                var allowedList = new List<PackagedAppModel>(localComPackages.Length);
                 var blockedList = new List<PackagedAppModel>();
                 var interceptedList = new List<PackagedAppModel>();
 
-                for (int i = 0; i < comPackages.Length; i++)
+                for (int i = 0; i < localComPackages.Length; i++)
                 {
-                    if (comPackages[i].Clsids.Length > 0)
+                    if (localComPackages[i].Clsids.Length > 0)
                     {
-                        var packageInfo = PackageManager.GetPackageInfoByFullName(comPackages[i].PackageFullName);
+                        var packageInfo = PackageManager.GetPackageInfoByFullName(localComPackages[i].PackageFullName);
                         if (packageInfo != null)
                         {
                             var appInfo = await PackageManager.GetPackageAppInfoAsync(packageInfo);
@@ -197,43 +194,27 @@ namespace RightClickManager.ViewModels
                                     var autoIntercepted = mList.Where(c => dict.TryGetValue(c.Clsid, out var b) && b.IsPending).ToList();
 
                                     if (allowed.Count > 0)
-                                    {
-                                        list.Add(new PackagedAppModel(appInfo, packageInfo, allowed, dict, clsidDllPaths));
-                                    }
+                                        allowedList.Add(new PackagedAppModel(appInfo, packageInfo, allowed, dict, clsidDllPaths));
                                     if (blockedManually.Count > 0)
-                                    {
                                         blockedList.Add(new PackagedAppModel(appInfo, packageInfo, blockedManually, dict, clsidDllPaths));
-                                    }
                                     if (autoIntercepted.Count > 0)
-                                    {
                                         interceptedList.Add(new PackagedAppModel(appInfo, packageInfo, autoIntercepted, dict, clsidDllPaths));
-                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                Dispatcher.UIThread.Post(() =>
-                {
-                    Helpers.Logger.Info("Dispatcher.Post: setting Apps/Blocked/Intercepted");
-                    BlockedApps = blockedList;
-                    InterceptedApps = interceptedList;
-                    Helpers.Logger.Info("Dispatcher.Post: Apps/Blocked/Intercepted done");
-                });
-
-                // --- System-level item enumeration (non-PackagedCom extensions + shell verbs) ---
+                // --- System-level item enumeration ---
                 var sysAllowed = new List<Models.SystemShellItem>();
                 var sysBlocked = new List<Models.SystemShellItem>();
                 var sysIntercepted = new List<Models.SystemShellItem>();
 
-                // Filter already-seen PackagedCom CLSIDs to avoid duplicates
                 var packagedComClsids = new HashSet<Guid>();
-                foreach (var pkg in comPackages)
+                foreach (var pkg in localComPackages)
                     foreach (var info in pkg.Clsids)
                         packagedComClsids.Add(info.Clsid);
 
-                // 1. Shell extensions from non-PackagedCom shellex paths
                 foreach (var root in ShellMenuScanner.ExtensionRoots)
                 {
                     try
@@ -265,18 +246,14 @@ namespace RightClickManager.ViewModels
                                 clsid.ToString("B"), fullDisplay, root, isVerb: false,
                                 clsid.ToString("B"), isBlocked, pending, canModify);
 
-                            if (!isBlocked)
-                                sysAllowed.Add(item);
-                            else if (pending)
-                                sysIntercepted.Add(item);
-                            else
-                                sysBlocked.Add(item);
+                            if (!isBlocked) sysAllowed.Add(item);
+                            else if (pending) sysIntercepted.Add(item);
+                            else sysBlocked.Add(item);
                         }
                     }
                     catch { }
                 }
 
-                // 2. Shell verbs from shell paths
                 foreach (var root in ShellMenuScanner.VerbRoots)
                 {
                     try
@@ -304,33 +281,31 @@ namespace RightClickManager.ViewModels
                                 verbPath, fullDisplay, root, isVerb: true,
                                 handlerClsid: null, verbBlocked, verbPending, canModify: true);
 
-                            if (!verbBlocked)
-                                sysAllowed.Add(item);
-                            else if (verbPending)
-                                sysIntercepted.Add(item);
-                            else
-                                sysBlocked.Add(item);
+                            if (!verbBlocked) sysAllowed.Add(item);
+                            else if (verbPending) sysIntercepted.Add(item);
+                            else sysBlocked.Add(item);
                         }
                     }
                     catch { }
                 }
 
-                Dispatcher.UIThread.Post(() =>
-                {
-                    Helpers.Logger.Info("Dispatcher.Post: setting SystemItems");
-                    SystemItems = GroupByCategory(sysAllowed);
-                    BlockedSystemItems = GroupByCategory(sysBlocked);
-                    InterceptedSystemItems = GroupByCategory(sysIntercepted);
-                    Helpers.Logger.Info("Dispatcher.Post: SystemItems done");
-                });
-
-                Helpers.Logger.Info("Task.Run returning list");
-                return list;
+                Helpers.Logger.Info("Task.Run returning all results");
+                return (allowedList, blockedList, interceptedList, sysAllowed, sysBlocked, sysIntercepted);
 
                 static bool GuidContains(Guid guid, string text) =>
                     guid.ToString("B").Contains(text, StringComparison.OrdinalIgnoreCase)
                     || guid.ToString("N").Contains(text, StringComparison.OrdinalIgnoreCase);
             });
+
+            // All UI updates happen here, on the UI thread, in one batch
+            Helpers.Logger.Info("Setting all properties on UI thread");
+            Apps = result.allowedList;
+            BlockedApps = result.blockedList;
+            InterceptedApps = result.interceptedList;
+            SystemItems = GroupByCategory(result.sysAllowed);
+            BlockedSystemItems = GroupByCategory(result.sysBlocked);
+            InterceptedSystemItems = GroupByCategory(result.sysIntercepted);
+            Helpers.Logger.Info("All properties set");
         });
 
         private static IReadOnlyList<Models.SystemShellGroup> GroupByCategory(List<Models.SystemShellItem> items)
