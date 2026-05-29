@@ -17,7 +17,13 @@
       "Bash(where vswhere *)",
       "Bash(export PATH=\"$PATH:/c/Program Files \\(x86\\)/Microsoft Visual Studio/Installer\")",
       "Bash(sed -i 's|</ResourceDictionary>|\\\\t<system:String x:Key=\"LangText_AppItems\">应用软件右键菜单项</system:String>\\\\n</ResourceDictionary>|' src/Lang/zh-CN.axaml)",
-      "Bash(sed -i 's|</ResourceDictionary>|\\\\t<system:String x:Key=\"LangText_AppItems\">Application Context Menu Items</system:String>\\\\n</ResourceDictionary>|' src/Lang/en-US.axaml)"
+      "Bash(sed -i 's|</ResourceDictionary>|\\\\t<system:String x:Key=\"LangText_AppItems\">Application Context Menu Items</system:String>\\\\n</ResourceDictionary>|' src/Lang/en-US.axaml)",
+      "Bash(sed -i '240s/^\\\\t\\\\\\\\t/\\\\\\\\t\\\\\\\\t\\\\\\\\t\\\\\\\\t\\\\\\\\t/' src/MainWindow.axaml)",
+      "Bash(sed -i '336s/^\\\\t\\\\\\\\t/\\\\\\\\t\\\\\\\\t\\\\\\\\t\\\\\\\\t\\\\\\\\t/' src/MainWindow.axaml)",
+      "Bash(python3 -c ' *)",
+      "Bash(awk '{sub\\(/^\\\\tt\\\\t/, \"\\\\t\\\\t\\\\t\\\\t\\\\t\"\\); print}' src/MainWindow.axaml)",
+      "Bash(mv src/MainWindow.axaml.tmp src/MainWindow.axaml)",
+      "Bash(xxd)"
     ]
   }
 }
