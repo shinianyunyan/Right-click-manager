@@ -70,7 +70,7 @@ namespace RightClickManager.Helpers
                             var clsid = nodes[i]?.Attributes?["Clsid"]?.Value;
                             if (Guid.TryParse(clsid, out var guid))
                             {
-                                list.Add(new(type, id, guid, PackagedComHelper.TryGetExplorerCommandTitle(guid, type)));
+                                list.Add(new(type, id, guid, null)); // title resolved lazily on UI thread
                             }
                         }
                     }

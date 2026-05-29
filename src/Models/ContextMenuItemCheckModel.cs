@@ -41,7 +41,7 @@ namespace RightClickManager.Models
         {
             get
             {
-                var title = ContextMenuItem.Title;
+                var title = ContextMenuItem.Title ?? PackagedComHelper.TryGetExplorerCommandTitle(ContextMenuItem.Clsid, ContextMenuItem.Type);
                 if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(ContextMenuItem.Id)) title = $"[{ContextMenuItem.Id}]";
 
                 if (!string.IsNullOrEmpty(ContextMenuItem.Type) && !string.IsNullOrEmpty(title))

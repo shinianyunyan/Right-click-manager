@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using Tmds.DBus.Protocol;
@@ -19,6 +20,7 @@ namespace RightClickManager.ViewModels
         private IReadOnlyList<PackagedAppModel>? interceptedApps;
         private string searchingText = "";
         private AsyncRelayCommand<string>? searchCommand;
+        private CancellationTokenSource? _searchCts;
 
         public IReadOnlyList<PackagedAppModel>? Apps
         {
@@ -144,11 +146,21 @@ namespace RightClickManager.ViewModels
             search = search?.Trim();
             Helpers.Logger.Info($"SearchCommand lambda enter, search='{search ?? "(null)"}'");
 
+            // Cancel any previous search still in flight
+            _searchCts?.Cancel();
+            _searchCts?.Dispose();
+            _searchCts = new CancellationTokenSource();
+            var token = _searchCts.Token;
+
+            try
+            {
             var result = await Task.Run(async () =>
             {
                 Helpers.Logger.Info("Task.Run begin: scanning registry");
+                token.ThrowIfCancellationRequested();
                 var localComPackages = PackagedComHelper.GetAllComPackages();
                 var localBlockedClsids = PackagedComHelper.GetBlockedClsids();
+                token.ThrowIfCancellationRequested();
 
                 var clsidDllPaths = new Dictionary<Guid, string>();
                 foreach (var pkg in localComPackages)
@@ -165,6 +177,8 @@ namespace RightClickManager.ViewModels
                 var interceptedList = new List<PackagedAppModel>();
 
                 for (int i = 0; i < localComPackages.Length; i++)
+                {
+                    if (i % 5 == 0) token.ThrowIfCancellationRequested();
                 {
                     if (localComPackages[i].Clsids.Length > 0)
                     {
@@ -203,6 +217,7 @@ namespace RightClickManager.ViewModels
                             }
                         }
                     }
+                }
                 }
 
                 // --- System-level item enumeration ---
@@ -306,6 +321,15 @@ namespace RightClickManager.ViewModels
             BlockedSystemItems = GroupByCategory(result.sysBlocked);
             InterceptedSystemItems = GroupByCategory(result.sysIntercepted);
             Helpers.Logger.Info("All properties set");
+            }
+            catch (OperationCanceledException)
+            {
+                Helpers.Logger.Info("Search cancelled by new request");
+            }
+            catch (Exception ex)
+            {
+                Helpers.Logger.Error("Search failed", ex.ToString());
+            }
         });
 
         private static IReadOnlyList<Models.SystemShellGroup> GroupByCategory(List<Models.SystemShellItem> items)
