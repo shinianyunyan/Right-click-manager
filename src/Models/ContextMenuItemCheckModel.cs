@@ -21,7 +21,7 @@ namespace RightClickManager.Models
 
         public bool CanModify { get; }
 
-        public bool IsPending { get => isPending; set => SetProperty(ref isPending, value); }
+        public bool IsPending { get => isPending; set => SetProperty(ref isPending, value, onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor))); }
         private bool isPending;
 
         public bool Enabled
@@ -38,7 +38,7 @@ namespace RightClickManager.Models
             }
         }
 
-        public string StatusColor => enabled ? "#4CAF50" : "#F44336";
+        public string StatusColor => isPending ? "#FFC107" : (enabled ? "#4CAF50" : "#F44336");
 
         private string? _displayName;
 
