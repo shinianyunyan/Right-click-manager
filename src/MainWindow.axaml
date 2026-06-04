@@ -297,8 +297,9 @@
 												</Border>
 												<TextBlock Text="{Binding DisplayName}" FontSize="14" LineHeight="22" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,4" />
 												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+													<CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
+													<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
+																	<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -306,12 +307,7 @@
 											<ItemsControl ItemsSource="{Binding VisibleContextMenuItems}" Margin="60,8,12,8">
 												<ItemsControl.ItemTemplate>
 													<DataTemplate x:DataType="models:ContextMenuItemCheckModel">
-														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled,Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-															<CheckBox.ContextMenu>
-																<ContextMenu>
-																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																</ContextMenu>
-															</CheckBox.ContextMenu>
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
 															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
@@ -345,8 +341,9 @@
 											<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="48">
 												<TextBlock Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
 												<StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="12,0,12,0">
-													<Button Content="{DynamicResource LangText_EnableAll}" Command="{Binding EnableAllCommand}" />
-													<Button Content="{DynamicResource LangText_DisableAll}" Command="{Binding DisableAllCommand}" />
+													<CheckBox IsThreeState="True" IsChecked="{Binding SelectAllState, Mode=OneWay}" Command="{Binding SelectAllCommand}" VerticalAlignment="Center" />
+													<Button Content="{DynamicResource LangText_EnableSelected}" Command="{Binding EnableSelectedCommand}" />
+																	<Button Content="{DynamicResource LangText_DisableSelected}" Command="{Binding DisableSelectedCommand}" />
 												</StackPanel>
 											</Grid>
 										</Expander.Header>
@@ -354,12 +351,7 @@
 											<ItemsControl ItemsSource="{Binding VisibleItems}" Margin="40,8,12,8">
 												<ItemsControl.ItemTemplate>
 													<DataTemplate x:DataType="models:SystemShellItem">
-														<CheckBox Margin="0,4,0,4" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
-															<CheckBox.ContextMenu>
-																<ContextMenu>
-																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
-																</ContextMenu>
-															</CheckBox.ContextMenu>
+														<CheckBox Margin="0,4,0,4" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding CanModify}">
 															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>

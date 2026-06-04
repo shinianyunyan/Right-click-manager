@@ -7,6 +7,7 @@ namespace RightClickManager.Models
     public partial class ContextMenuItemCheckModel : ObservableObject
     {
         private bool enabled;
+        private bool isSelected;
 
         public ContextMenuItemCheckModel(ContextMenuItem contextMenuItem, bool enabled, bool canModify, bool isPending = false, string? knownDllPath = null)
         {
@@ -23,6 +24,12 @@ namespace RightClickManager.Models
 
         public bool IsPending { get => isPending; set => SetProperty(ref isPending, value, onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor))); }
         private bool isPending;
+
+        public bool IsSelected
+        {
+            get => isSelected;
+            set => SetProperty(ref isSelected, value, notifyWhenNotChanged: true);
+        }
 
         public bool Enabled
         {

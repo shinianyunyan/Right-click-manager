@@ -8,6 +8,7 @@ namespace RightClickManager.Models
     {
         private bool enabled;
         private bool isPending;
+        private bool isSelected;
 
         public SystemShellItem(
             string registryPath,
@@ -40,6 +41,12 @@ namespace RightClickManager.Models
         {
             get => isPending;
             set => SetProperty(ref isPending, value, onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)));
+        }
+
+        public bool IsSelected
+        {
+            get => isSelected;
+            set => SetProperty(ref isSelected, value, notifyWhenNotChanged: true);
         }
 
         public bool Enabled

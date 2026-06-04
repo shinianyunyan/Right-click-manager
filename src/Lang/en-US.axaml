@@ -22,6 +22,8 @@
     <system:String x:Key="LangText_TabPending">Pending Intercept</system:String>
     <system:String x:Key="LangText_EnableAll">Enable All</system:String>
     <system:String x:Key="LangText_DisableAll">Disable All</system:String>
+	<system:String x:Key="LangText_EnableSelected">Enable Selected</system:String>
+	<system:String x:Key="LangText_DisableSelected">Disable Selected</system:String>
     <system:String x:Key="LangText_InterceptedTitle">Interception Alert</system:String>
     <system:String x:Key="LangText_InterceptedMsg">A newly added context menu item was detected and intercepted. Please review it in the main window.</system:String>
     <system:String x:Key="LangText_InterceptedVerbMsg">A new shell verb was detected and intercepted.</system:String>

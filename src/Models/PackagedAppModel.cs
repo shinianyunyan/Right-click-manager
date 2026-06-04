@@ -30,6 +30,10 @@ namespace RightClickManager.Models
                 return new ContextMenuItemCheckModel(c, true, true, false, dllPath);
             }).ToArray();
 
+            foreach (var item in ContextMenuItems)
+                item.PropertyChanged += OnChildItemPropertyChanged;
+            RecalculateSelectAllState();
+
             if (string.IsNullOrEmpty(AppInfo.DisplayName))
             {
                 DisplayName = $"{PackageInfo.PackageFamilyName}";
@@ -109,5 +113,69 @@ namespace RightClickManager.Models
                 item.Enabled = false;
             }
         });
+
+        private bool _isUpdatingSelection;
+        private bool? _selectAllState;
+
+        public bool? SelectAllState
+        {
+            get => _selectAllState;
+            private set => SetProperty(ref _selectAllState, value);
+        }
+
+        public Base.RelayCommand SelectAllCommand => new Base.RelayCommand(() =>
+        {
+            _isUpdatingSelection = true;
+            bool newState = _selectAllState != true;
+            foreach (var item in ContextMenuItems)
+                if (item.CanModify) item.IsSelected = newState;
+            _isUpdatingSelection = false;
+            RecalculateSelectAllState();
+        });
+
+        public Base.RelayCommand EnableSelectedCommand => new Base.RelayCommand(() =>
+        {
+            foreach (var item in ContextMenuItems)
+            {
+                if (!item.IsSelected || !item.CanModify) continue;
+                item.Enabled = true;
+            }
+        });
+
+        public Base.RelayCommand DisableSelectedCommand => new Base.RelayCommand(() =>
+        {
+            foreach (var item in ContextMenuItems)
+            {
+                if (!item.IsSelected || !item.CanModify) continue;
+                if (item.IsPending)
+                {
+                    PackagedComHelper.SetBlockedClsid(item.ContextMenuItem.Clsid,
+                        PackagedComHelper.BlockedClsidType.CurrentUser, blocked: true, isPending: false);
+                    item.IsPending = false;
+                }
+                item.Enabled = false;
+            }
+        });
+
+        private void RecalculateSelectAllState()
+        {
+            if (_isUpdatingSelection) return;
+            if (ContextMenuItems.Count == 0) { SelectAllState = false; return; }
+            bool hasSel = false, hasUnsel = false;
+            foreach (var item in ContextMenuItems)
+            {
+                if (!item.CanModify) continue;
+                if (item.IsSelected) hasSel = true; else hasUnsel = true;
+            }
+            if (hasSel && hasUnsel) SelectAllState = null;
+            else if (hasSel) SelectAllState = true;
+            else SelectAllState = false;
+        }
+
+        private void OnChildItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ContextMenuItemCheckModel.IsSelected))
+                RecalculateSelectAllState();
+        }
     }
 }

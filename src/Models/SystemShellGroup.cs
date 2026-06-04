@@ -25,6 +25,10 @@ namespace RightClickManager.Models
                 _ => category
             };
             Items = items;
+
+            foreach (var item in Items)
+                item.PropertyChanged += OnChildItemPropertyChanged;
+            RecalculateSelectAllState();
         }
 
         public string Category { get; }
@@ -71,5 +75,68 @@ namespace RightClickManager.Models
                 item.Enabled = false;
             }
         });
+
+        private bool _isUpdatingSelection;
+        private bool? _selectAllState;
+
+        public bool? SelectAllState
+        {
+            get => _selectAllState;
+            private set => SetProperty(ref _selectAllState, value);
+        }
+
+        public RelayCommand SelectAllCommand => new RelayCommand(() =>
+        {
+            _isUpdatingSelection = true;
+            bool newState = _selectAllState != true;
+            foreach (var item in Items)
+                if (item.CanModify) item.IsSelected = newState;
+            _isUpdatingSelection = false;
+            RecalculateSelectAllState();
+        });
+
+        public RelayCommand EnableSelectedCommand => new RelayCommand(() =>
+        {
+            foreach (var item in Items)
+                if (item.IsSelected && item.CanModify) item.Enabled = true;
+        });
+
+        public RelayCommand DisableSelectedCommand => new RelayCommand(() =>
+        {
+            foreach (var item in Items)
+            {
+                if (!item.IsSelected || !item.CanModify) continue;
+                if (item.IsPending)
+                {
+                    if (item.IsVerb)
+                        ShellMenuScanner.DeleteVerbPendingMarker(item.RegistryPath);
+                    else if (item.HandlerClsid is not null && Guid.TryParse(item.HandlerClsid, out var clsid))
+                        PackagedComHelper.SetBlockedClsid(clsid, PackagedComHelper.BlockedClsidType.CurrentUser, blocked: true, isPending: false);
+                    item.IsPending = false;
+                }
+                item.Enabled = false;
+            }
+        });
+
+        private void RecalculateSelectAllState()
+        {
+            if (_isUpdatingSelection) return;
+            if (Items.Count == 0) { SelectAllState = false; return; }
+            bool hasSel = false, hasUnsel = false;
+            foreach (var item in Items)
+            {
+                if (!item.CanModify) continue;
+                if (item.IsSelected) hasSel = true; else hasUnsel = true;
+            }
+            if (hasSel && hasUnsel) SelectAllState = null;
+            else if (hasSel) SelectAllState = true;
+            else SelectAllState = false;
+        }
+
+        private void OnChildItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SystemShellItem.IsSelected))
+                RecalculateSelectAllState();
+        }
     }
 }
