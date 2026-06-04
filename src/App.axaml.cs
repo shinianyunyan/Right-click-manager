@@ -103,6 +103,7 @@ public partial class App : Application
                         textElements[0].AppendChild(toastXml.CreateTextNode(title));
                         textElements[1].AppendChild(toastXml.CreateTextNode(msg));
                         var toast = new Windows.UI.Notifications.ToastNotification(toastXml);
+                        toast.Activated += (_, _) => Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(ShowMainWindow);
                         Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier("RightClickManager").Show(toast);
                     }
                     catch { }
@@ -130,6 +131,7 @@ public partial class App : Application
                         textElements[0].AppendChild(toastXml.CreateTextNode(title));
                         textElements[1].AppendChild(toastXml.CreateTextNode(msg + "\n" + verbPath));
                         var toast = new Windows.UI.Notifications.ToastNotification(toastXml);
+                        toast.Activated += (_, _) => Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(ShowMainWindow);
                         Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier("RightClickManager").Show(toast);
                     }
                     catch { }
@@ -172,6 +174,9 @@ public partial class App : Application
             }
             _mainWindow.Show();
             _mainWindow.Activate();
+            // Auto-refresh on open
+            ViewModels.ViewModelLocator.Instance.MainWindowViewModel.SearchCommand.Execute(
+                ViewModels.ViewModelLocator.Instance.MainWindowViewModel.SearchingText);
         }
     }
 }
