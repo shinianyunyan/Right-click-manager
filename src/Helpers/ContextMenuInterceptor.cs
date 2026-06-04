@@ -58,14 +58,15 @@ namespace RightClickManager.Helpers
                     {
                         if (!_baselineClsids.Contains(clsid))
                         {
+                            bool isNew = _notifiedClsids.Add(clsid);
+                            // New: pending + notify. Seen before: disable directly, no notify.
                             PackagedComHelper.SetBlockedClsid(
                                 clsid,
                                 PackagedComHelper.BlockedClsidType.CurrentUser,
                                 blocked: true,
-                                isPending: true);
+                                isPending: isNew);
                             _baselineClsids.Add(clsid);
-                            // Only notify for genuinely new items, never re-notify
-                            if (_notifiedClsids.Add(clsid))
+                            if (isNew)
                                 OnItemIntercepted?.Invoke(this, clsid);
                         }
                     }
@@ -76,9 +77,10 @@ namespace RightClickManager.Helpers
                     {
                         if (!_baselineVerbs.Contains(verbPath))
                         {
-                            ShellMenuScanner.BlockVerb(verbPath, isPending: true);
+                            bool isNew = _notifiedVerbs.Add(verbPath);
+                            ShellMenuScanner.BlockVerb(verbPath, isPending: isNew);
                             _baselineVerbs.Add(verbPath);
-                            if (_notifiedVerbs.Add(verbPath))
+                            if (isNew)
                                 OnVerbIntercepted?.Invoke(this, verbPath);
                         }
                     }
