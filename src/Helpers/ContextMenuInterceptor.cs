@@ -12,15 +12,12 @@ namespace RightClickManager.Helpers
 
         private HashSet<Guid> _baselineClsids = new();
         private HashSet<string> _baselineVerbs = new(StringComparer.OrdinalIgnoreCase);
-        private HashSet<Guid> _notifiedClsids = new();
-        private HashSet<string> _notifiedVerbs = new(StringComparer.OrdinalIgnoreCase);
+        private HashSet<Guid> _deferredClsids = new();
+        private HashSet<string> _deferredVerbs = new(StringComparer.OrdinalIgnoreCase);
         private bool _isStarted;
         private CancellationTokenSource? _cts;
 
-        // Triggered when a new CLSID-based extension is intercepted
         public event EventHandler<Guid>? OnItemIntercepted;
-
-        // Triggered when a new shell verb is intercepted
         public event EventHandler<string>? OnVerbIntercepted;
 
         public void Start()
@@ -58,16 +55,20 @@ namespace RightClickManager.Helpers
                     {
                         if (!_baselineClsids.Contains(clsid))
                         {
-                            bool isNew = _notifiedClsids.Add(clsid);
-                            // New: pending + notify. Seen before: disable directly, no notify.
+                            // New CLSID: defer block to next cycle so the app verifies
+                            // its registration succeeded first, breaking the retry loop.
+                            _baselineClsids.Add(clsid);
+                            _deferredClsids.Add(clsid);
+                            OnItemIntercepted?.Invoke(this, clsid);
+                        }
+                        else if (_deferredClsids.Remove(clsid))
+                        {
+                            // Previously deferred: now safe to block (app already verified success)
                             PackagedComHelper.SetBlockedClsid(
                                 clsid,
                                 PackagedComHelper.BlockedClsidType.CurrentUser,
                                 blocked: true,
-                                isPending: isNew);
-                            _baselineClsids.Add(clsid);
-                            if (isNew)
-                                OnItemIntercepted?.Invoke(this, clsid);
+                                isPending: true);
                         }
                     }
                     _baselineClsids.IntersectWith(currentClsids);
@@ -77,11 +78,13 @@ namespace RightClickManager.Helpers
                     {
                         if (!_baselineVerbs.Contains(verbPath))
                         {
-                            bool isNew = _notifiedVerbs.Add(verbPath);
-                            ShellMenuScanner.BlockVerb(verbPath, isPending: isNew);
                             _baselineVerbs.Add(verbPath);
-                            if (isNew)
-                                OnVerbIntercepted?.Invoke(this, verbPath);
+                            _deferredVerbs.Add(verbPath);
+                            OnVerbIntercepted?.Invoke(this, verbPath);
+                        }
+                        else if (_deferredVerbs.Remove(verbPath))
+                        {
+                            ShellMenuScanner.BlockVerb(verbPath, isPending: true);
                         }
                     }
                     _baselineVerbs.IntersectWith(currentVerbs);
