@@ -55,20 +55,15 @@ namespace RightClickManager.Helpers
                     {
                         if (!_baselineClsids.Contains(clsid))
                         {
-                            // New CLSID: defer block to next cycle so the app verifies
-                            // its registration succeeded first, breaking the retry loop.
                             _baselineClsids.Add(clsid);
                             _deferredClsids.Add(clsid);
                             OnItemIntercepted?.Invoke(this, clsid);
+                            // Block after 3s delay so app has time to verify its registration succeeded
+                            _ = DelayedClsidBlock(clsid, token);
                         }
                         else if (_deferredClsids.Remove(clsid))
                         {
-                            // Previously deferred: now safe to block (app already verified success)
-                            PackagedComHelper.SetBlockedClsid(
-                                clsid,
-                                PackagedComHelper.BlockedClsidType.CurrentUser,
-                                blocked: true,
-                                isPending: true);
+                            // Already handled by delayed task, just clean up
                         }
                     }
                     _baselineClsids.IntersectWith(currentClsids);
@@ -81,16 +76,47 @@ namespace RightClickManager.Helpers
                             _baselineVerbs.Add(verbPath);
                             _deferredVerbs.Add(verbPath);
                             OnVerbIntercepted?.Invoke(this, verbPath);
+                            _ = DelayedVerbBlock(verbPath, token);
                         }
                         else if (_deferredVerbs.Remove(verbPath))
                         {
-                            ShellMenuScanner.BlockVerb(verbPath, isPending: true);
+                            // Already handled by delayed task, just clean up
                         }
                     }
                     _baselineVerbs.IntersectWith(currentVerbs);
                 }
                 catch { }
             }
+        }
+
+        private async Task DelayedClsidBlock(Guid clsid, CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), token);
+                if (_deferredClsids.Contains(clsid))
+                {
+                    PackagedComHelper.SetBlockedClsid(
+                        clsid,
+                        PackagedComHelper.BlockedClsidType.CurrentUser,
+                        blocked: true,
+                        isPending: true);
+                }
+            }
+            catch { }
+        }
+
+        private async Task DelayedVerbBlock(string verbPath, CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3), token);
+                if (_deferredVerbs.Contains(verbPath))
+                {
+                    ShellMenuScanner.BlockVerb(verbPath, isPending: true);
+                }
+            }
+            catch { }
         }
     }
 }
