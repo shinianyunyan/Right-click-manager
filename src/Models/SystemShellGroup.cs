@@ -1,4 +1,6 @@
 using RightClickManager.Base;
+using RightClickManager.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,7 +57,19 @@ namespace RightClickManager.Models
         public RelayCommand DisableAllCommand => new RelayCommand(() =>
         {
             foreach (var item in Items)
-                if (item.CanModify) item.Enabled = false;
+            {
+                if (!item.CanModify) continue;
+                if (item.IsPending)
+                {
+                    // Clear pending marker in registry while keeping block
+                    if (item.IsVerb)
+                        ShellMenuScanner.DeleteVerbPendingMarker(item.RegistryPath);
+                    else if (item.HandlerClsid is not null && Guid.TryParse(item.HandlerClsid, out var clsid))
+                        PackagedComHelper.SetBlockedClsid(clsid, PackagedComHelper.BlockedClsidType.CurrentUser, blocked: true, isPending: false);
+                    item.IsPending = false;
+                }
+                item.Enabled = false;
+            }
         });
     }
 }

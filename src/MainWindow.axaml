@@ -98,7 +98,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>
@@ -146,7 +146,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>
@@ -205,7 +205,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>
@@ -253,7 +253,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>
@@ -312,7 +312,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>
@@ -360,7 +360,7 @@
 																	<MenuItem Header="{DynamicResource LangText_OpenFileLocation}" Command="{Binding OpenFileLocationCommand}" IsEnabled="{Binding HasFilePath}" />
 																</ContextMenu>
 															</CheckBox.ContextMenu>
-															<TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" />
+															<Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding DisplayName}" FontFamily="Consolas, Segoe UI" TextWrapping="Wrap" VerticalAlignment="Center" /><Border Grid.Column="1" Width="8" Height="8" CornerRadius="4" Background="{Binding StatusColor}" VerticalAlignment="Center" Margin="8,0,0,0" /></Grid>
 														</CheckBox>
 													</DataTemplate>
 												</ItemsControl.ItemTemplate>

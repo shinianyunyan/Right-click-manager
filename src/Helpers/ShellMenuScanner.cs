@@ -150,6 +150,16 @@ namespace RightClickManager.Helpers
             catch { return false; }
         }
 
+        public static void DeleteVerbPendingMarker(string verbRegistryPath)
+        {
+            try
+            {
+                using var key = Registry.ClassesRoot.CreateSubKey(verbRegistryPath, true);
+                key?.DeleteValue(PendingMarker, false);
+            }
+            catch { }
+        }
+
         public static bool IsVerbPending(string verbRegistryPath)
         {
             try

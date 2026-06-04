@@ -98,7 +98,15 @@ namespace RightClickManager.Models
         {
             foreach (var item in ContextMenuItems)
             {
-                if (item.CanModify) item.Enabled = false;
+                if (!item.CanModify) continue;
+                if (item.IsPending)
+                {
+                    // Explicitly clear pending: rewrite registry from PendingApproval to Blocked
+                    PackagedComHelper.SetBlockedClsid(item.ContextMenuItem.Clsid,
+                        PackagedComHelper.BlockedClsidType.CurrentUser, blocked: true, isPending: false);
+                    item.IsPending = false;
+                }
+                item.Enabled = false;
             }
         });
     }

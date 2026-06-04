@@ -32,10 +32,13 @@ namespace RightClickManager.Models
                 SetProperty(ref enabled, value,
                     onPropertyChanging: (oldValue, newValue) =>
                         PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false),
+                    onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);
             }
         }
+
+        public string StatusColor => enabled ? "#4CAF50" : "#F44336";
 
         private string? _displayName;
 

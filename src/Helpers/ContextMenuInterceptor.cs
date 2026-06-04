@@ -12,10 +12,12 @@ namespace RightClickManager.Helpers
 
         private HashSet<Guid> _baselineClsids = new();
         private HashSet<string> _baselineVerbs = new(StringComparer.OrdinalIgnoreCase);
+        private HashSet<Guid> _notifiedClsids = new();
+        private HashSet<string> _notifiedVerbs = new(StringComparer.OrdinalIgnoreCase);
         private bool _isStarted;
         private CancellationTokenSource? _cts;
 
-        // Triggered when a new CLSID-based extension (PackagedCom or shellex) is intercepted
+        // Triggered when a new CLSID-based extension is intercepted
         public event EventHandler<Guid>? OnItemIntercepted;
 
         // Triggered when a new shell verb is intercepted
@@ -51,7 +53,6 @@ namespace RightClickManager.Helpers
 
                 try
                 {
-                    // --- Check for new CLSID-based extensions (PackagedCom + shellex) ---
                     var currentClsids = ShellMenuScanner.ScanAllExtensionClsids();
                     foreach (var clsid in currentClsids)
                     {
@@ -63,12 +64,13 @@ namespace RightClickManager.Helpers
                                 blocked: true,
                                 isPending: true);
                             _baselineClsids.Add(clsid);
-                            OnItemIntercepted?.Invoke(this, clsid);
+                            // Only notify for genuinely new items, never re-notify
+                            if (_notifiedClsids.Add(clsid))
+                                OnItemIntercepted?.Invoke(this, clsid);
                         }
                     }
                     _baselineClsids.IntersectWith(currentClsids);
 
-                    // --- Check for new shell verbs ---
                     var currentVerbs = ShellMenuScanner.ScanAllVerbPaths();
                     foreach (var verbPath in currentVerbs)
                     {
@@ -76,15 +78,13 @@ namespace RightClickManager.Helpers
                         {
                             ShellMenuScanner.BlockVerb(verbPath, isPending: true);
                             _baselineVerbs.Add(verbPath);
-                            OnVerbIntercepted?.Invoke(this, verbPath);
+                            if (_notifiedVerbs.Add(verbPath))
+                                OnVerbIntercepted?.Invoke(this, verbPath);
                         }
                     }
                     _baselineVerbs.IntersectWith(currentVerbs);
                 }
-                catch
-                {
-                    // Ignore transient registry reading errors
-                }
+                catch { }
             }
         }
     }

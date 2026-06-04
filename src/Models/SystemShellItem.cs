@@ -69,10 +69,13 @@ namespace RightClickManager.Models
                         IsPending = false;
                         return true;
                     },
+                    onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);
             }
         }
+
+        public string StatusColor => enabled ? "#4CAF50" : "#F44336";
 
         private string? _filePath;
         private bool _filePathResolved;
