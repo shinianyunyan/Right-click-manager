@@ -38,7 +38,12 @@ namespace RightClickManager.Models
             {
                 SetProperty(ref enabled, value,
                     onPropertyChanging: (oldValue, newValue) =>
-                        PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false),
+                    {
+                        var updated = PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false);
+                        if (updated)
+                            IsPending = false;
+                        return updated;
+                    },
                     onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
                     notifyWhenNotChanged: true,
                     asyncNotifyWhenNotChanged: true);

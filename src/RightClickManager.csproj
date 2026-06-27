@@ -14,7 +14,7 @@
                 <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
                 <Platforms>x86;x64</Platforms>
                 <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-                <Version>0.0.7</Version>
+                <Version>0.0.8</Version>
         </PropertyGroup>
 
         <PropertyGroup>
