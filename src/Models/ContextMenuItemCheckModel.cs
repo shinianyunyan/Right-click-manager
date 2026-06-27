@@ -36,17 +36,26 @@ namespace RightClickManager.Models
             get => enabled;
             set
             {
-                SetProperty(ref enabled, value,
-                    onPropertyChanging: (oldValue, newValue) =>
-                    {
-                        var updated = PackagedComHelper.SetBlockedClsid(ContextMenuItem.Clsid, PackagedComHelper.BlockedClsidType.CurrentUser, !newValue, false);
-                        if (updated)
-                            IsPending = false;
-                        return updated;
-                    },
-                    onPropertyChanged: (_, _) => OnPropertyChanged(nameof(StatusColor)),
-                    notifyWhenNotChanged: true,
-                    asyncNotifyWhenNotChanged: true);
+                var updated = PackagedComHelper.SetBlockedClsid(
+                    ContextMenuItem.Clsid,
+                    PackagedComHelper.BlockedClsidType.CurrentUser,
+                    !value,
+                    false);
+
+                if (!updated)
+                    return;
+
+                var oldEnabled = enabled;
+                var oldPending = isPending;
+
+                enabled = value;
+                isPending = false;
+
+                if (oldEnabled != enabled)
+                    OnPropertyChanged(nameof(Enabled));
+                if (oldPending != isPending)
+                    OnPropertyChanged(nameof(IsPending));
+                OnPropertyChanged(nameof(StatusColor));
             }
         }
 
